@@ -1,0 +1,68 @@
+logging:
+  level:
+    .org.springframework.web: DEBUG
+    .org.hibernate: ERROR
+    org:
+      apache:
+        logging:
+          log4j: DEBUG
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+
+server:
+  port: ${PORT:8080}
+  servlet:
+    contextPath: /sportandreview
+
+spring:
+  application:
+    name: sportandreview-api
+  datasource:
+    url: jdbc:postgresql://${POSTGRES_HOSTNAME:sportandreview-db}:${POSTGRES_PORT:5433}/${POSTGRES_DB:sport-and-review}
+    username: ${POSTGRES_USER:sportAndReview}
+    password: ${POSTGRES_PASSWORD:sportAndReview}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddlAuto: update
+    properties:
+      hibernate:
+        formatSql: true
+        jdbc:
+          lob:
+            nonContextualCreation: true
+        showSql: true
+        useSqlComments: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+springdoc:
+  api-docs:
+    enabled: true
+
+docker:
+  smtp:
+    server: smtp.office365.com
+    username: sport-and-review@outlook.it
+    pw: sportAndReview
+
+SportAndReview:
+
+  password-url: https://www.esempio.com/pagina
+
+
+# To use if multiple service will be created
+#eureka:
+#  client:
+#    register-with-eureka: true
+#    fetch-registry: true
+#    service-url:
+#      defaultZone: http://${EUREKA_HOSTNAME:eureka}:${EUREKA_PORT:8761}/eureka/
+
+
+
+
+

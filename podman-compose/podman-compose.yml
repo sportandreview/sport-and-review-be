@@ -1,0 +1,46 @@
+services:
+  sportandreview-db:
+    build:
+      context: ../devops/db
+      args:
+        DB_DUMP_FILENAME: sport_and_review_dump.sql
+    image: postgres:latest
+    restart: unless-stopped
+    container_name: sportandreview-db
+    volumes:
+      - sportandreview-data:/var/lib/postgresql/data
+    networks:
+      - sportandreview
+    # Expose DB on the host only for development
+    ports:
+      - "5001:5432"
+    environment:
+      - POSTGRES_DB=sport-and-review
+      - POSTGRES_USER=sportAndReview
+      - POSTGRES_PASSWORD=sportAndReview
+
+  sportandreview-api:
+    build: ../
+    restart: unless-stopped
+    container_name: sportandreview-api
+    networks:
+      - podman
+      - sportandreview
+    ports:
+      - "8001:8080"
+    environment:
+      - POSTGRES_HOSTNAME=sportandreview-db
+      - POSTGRES_PORT=5432
+      - POSTGRES_DB=sport-and-review
+      - POSTGRES_USER=sportAndReview
+      - POSTGRES_PASSWORD=sportAndReview
+
+networks:
+  podman:
+    driver: bridge
+  sportandreview:
+    driver: bridge
+
+volumes:
+  sportandreview-data:
+
