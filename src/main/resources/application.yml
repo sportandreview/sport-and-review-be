@@ -22,9 +22,9 @@ spring:
   application:
     name: Sport And Review API
   datasource:
-    url: jdbc:postgresql://localhost:5433/sport-and-review
-    username: postgres
-    password: postgres
+    url: ${JDBC_DATABASE_URL:jdbc:postgresql://localhost:5433/sport-and-review}
+    username: ${JDBC_DATABASE_USERNAME:postgres}
+    password: ${JDBC_DATABASE_PASSWORD:postgres}
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
