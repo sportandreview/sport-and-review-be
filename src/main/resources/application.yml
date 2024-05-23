@@ -1,44 +1,38 @@
 logging:
   level:
-    .org.springframework.web: DEBUG
-    .org.hibernate: ERROR
-    org:
-      apache:
-        logging:
-          log4j: DEBUG
+    org.springframework.web: DEBUG
+    org.hibernate: ERROR
+    org.apache.logging.log4j: DEBUG
 
 management:
   endpoints:
     web:
       exposure:
-        include: '*'
+        include: health,info
 
 server:
-  port: 8008
-  servlet:
-    contextPath: /sportandreview
+  port: ${PORT:8008}
 
 spring:
   application:
     name: Sport And Review API
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:dev}
   datasource:
-    url: ${JDBC_DATABASE_URL:jdbc:postgresql://localhost:5433/sport-and-review}
-    username: ${JDBC_DATABASE_USERNAME:postgres}
-    password: ${JDBC_DATABASE_PASSWORD:postgres}
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
-      ddlAuto: update
+      ddl-auto: update
     properties:
       hibernate:
-        formatSql: true
+        format_sql: true
         order_inserts: true
         jdbc:
-            batch_size: 5
+          batch_size: 5
         lob:
-            nonContextualCreation: true
-        showSql: true
-        useSqlComments: true
+          non_contextual_creation: true
+        show_sql: true
+        use_sql_comments: true
         dialect: org.hibernate.dialect.PostgreSQLDialect
 
 springdoc:
@@ -49,7 +43,6 @@ springdoc:
     path: /swagger-ui.html
     enabled: true
 
-# To use if multiple service will be created
 eureka:
   client:
     register-with-eureka: false
@@ -60,9 +53,8 @@ eureka:
 docker:
   smtp:
     server: smtp.office365.com
-    username: sport-and-review@outlook.it
-    pw: sportAndReview
+    username: ${SMTP_USERNAME:sport-and-review@outlook.it}
+    pw: ${SMTP_PASSWORD:sportAndReview}
 
 SportAndReview:
-
   password-url: https://www.esempio.com/pagina
