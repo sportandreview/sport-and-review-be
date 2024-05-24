@@ -16,6 +16,4 @@ public class AuthenticationResponse {
     private String refreshToken;
     private boolean mobilePhoneCheck;
     private boolean emailCheck;
-
-
 }

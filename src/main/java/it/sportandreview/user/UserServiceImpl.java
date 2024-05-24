@@ -6,8 +6,7 @@ import it.sportandreview.utils.Sha256Utils;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -22,15 +21,11 @@ public class UserServiceImpl implements UserService {
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
 
-    private final AuthenticationManager authenticationManager;
-
     @Autowired
-    public UserServiceImpl(UserRepository userRepository, UserMapper userMapper, PasswordEncoder passwordEncoder,
-                                 AuthenticationManager authenticationManager) {
+    public UserServiceImpl(UserRepository userRepository, UserMapper userMapper, @Lazy PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.userMapper = userMapper;
         this.passwordEncoder = passwordEncoder;
-        this.authenticationManager = authenticationManager;
     }
 
     @Override
@@ -47,7 +42,6 @@ public class UserServiceImpl implements UserService {
         log.debug("User created");
         return saved;
     }
-
 
     @Override
     public User update(UserDTO userDto) {
@@ -74,7 +68,6 @@ public class UserServiceImpl implements UserService {
     public UserDTO updatePassword(PasswordRequest request) {
         User user = userRepository.findById(request.getId()).
                 orElseThrow(() -> new NotFoundException("user", "User" + "not exists into database"));
-        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(user.getEmail(), request.getOldPassword()));
         user.setPassword(passwordEncoder.encode(request.getNewPassword()));
         User user1 = userRepository.save(user);
         return userMapper.toDto(user1);
@@ -93,6 +86,3 @@ public class UserServiceImpl implements UserService {
     }
 
 }
-
-
-

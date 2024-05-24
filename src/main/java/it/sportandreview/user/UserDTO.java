@@ -3,6 +3,8 @@ package it.sportandreview.user;
 import it.sportandreview.base.BaseDTO;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.springframework.security.core.GrantedAuthority;
@@ -26,7 +28,11 @@ public class UserDTO extends BaseDTO implements UserDetails {
     private String name;
     private String surname;
     private String phone;
+
+    @Email(message = "Invalid email format")
+    @NotBlank(message = "Email is required")
     private String email;
+
     private String password;
     private String cap;
     private String address;
