@@ -9,7 +9,3 @@ logging:
     org.springframework.web: DEBUG
     org.hibernate: ERROR
     org.apache.logging.log4j: DEBUG
-
-server:
-  servlet:
-    contextPath: /rest/api/sportandreview

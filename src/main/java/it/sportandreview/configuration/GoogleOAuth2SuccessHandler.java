@@ -10,6 +10,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
@@ -19,6 +20,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class GoogleOAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
@@ -31,6 +33,8 @@ public class GoogleOAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHa
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
         OidcUser oidcUser = (OidcUser) authentication.getPrincipal();
+        log.info("Received OAuth2 callback for user: {}", oidcUser.getEmail());
+
         String email = oidcUser.getEmail();
         User user = userService.findByEmail(email).orElseGet(() -> {
             UserDTO newUser = new UserDTO();
@@ -43,11 +47,12 @@ public class GoogleOAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHa
 
         AuthenticationResponse authResponse = authenticationService.generateTokens(user);
 
-        String redirectUrl = UriComponentsBuilder.fromUriString("/success")
+        String redirectUrl = UriComponentsBuilder.fromUriString("/authenticate")
                 .queryParam("token", authResponse.getToken())
                 .queryParam("refreshToken", authResponse.getRefreshToken())
                 .build().toUriString();
 
+        log.info("Redirecting to: {}", redirectUrl);
         getRedirectStrategy().sendRedirect(request, response, redirectUrl);
     }
 }
