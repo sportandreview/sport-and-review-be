@@ -16,16 +16,23 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.stereotype.Service;
 
 @Service
-@RequiredArgsConstructor
 @Slf4j
 public class AuthenticationServiceImpl implements AuthenticationService {
 
     private final JwtService jwtService;
     private final UserService userService;
+    private final AuthenticationManager authenticationManager;
 
-    @Lazy
     @Autowired
-    private AuthenticationManager authenticationManager;
+    public AuthenticationServiceImpl(
+            JwtService jwtService,
+            UserService userService,
+            @Lazy AuthenticationManager authenticationManager
+    ) {
+        this.jwtService = jwtService;
+        this.userService = userService;
+        this.authenticationManager = authenticationManager;
+    }
 
     private static final long TOKEN_EXPIRATION_TIME = 1000 * 60 * 60;
     private static final long REFRESH_TOKEN_EXPIRATION_TIME = 1000 * 60 * 70;

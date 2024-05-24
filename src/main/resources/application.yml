@@ -42,7 +42,7 @@ spring:
             client-id: ${GOOGLE_CLIENT_ID}
             client-secret: ${GOOGLE_CLIENT_SECRET}
             scope: profile, email
-            redirect-uri: "{baseUrl}/rest/api/sportandreview/login/oauth2/code/google"
+            redirect-uri: "http://localhost:8008/rest/api/sportandreview/oauth2/callback/google"
             authorization-grant-type: authorization_code
             client-name: Google
         provider:
