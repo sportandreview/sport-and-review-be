@@ -6,10 +6,12 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class GenericResponseDTO<T> {
+@Builder
+public class ValidationErrorDTO {
+    private String object;
+    private String field;
     private String message;
-    private T data;
+    private Object rejectedValue;
 }

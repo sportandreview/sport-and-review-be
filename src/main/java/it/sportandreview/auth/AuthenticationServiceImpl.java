@@ -1,8 +1,9 @@
 package it.sportandreview.auth;
 
 import it.sportandreview.configuration.JwtService;
-import it.sportandreview.exception.specific.CreateEntityException;
-import it.sportandreview.exception.specific.UserAlreadyExistsException;
+import it.sportandreview.exception.TokenNotValidException;
+import it.sportandreview.exception.UserAlreadyExistException;
+import it.sportandreview.exception.UserNotFoundException;
 import it.sportandreview.user.Role;
 import it.sportandreview.user.User;
 import it.sportandreview.user.UserDTO;
@@ -26,27 +27,27 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private static final long REFRESH_TOKEN_EXPIRATION_TIME = 1000 * 60 * 70;
 
     @Override
-    public void register(UserDTO userDto, Role role) throws UserAlreadyExistsException {
+    public void register(UserDTO userDto, Role role) throws UserAlreadyExistException {
         log.info("register Player START");
-        if(userService.findByEmail(userDto.getEmail()).isPresent())  throw new UserAlreadyExistsException();
+        if(userService.findByEmail(userDto.getEmail()).isPresent())  throw new UserAlreadyExistException("Email già in uso!");
         userDto.setRole(role);
         userService.create(userDto);
     }
 
     @Override
-    public AuthenticationResponse authenticate(AuthenticationRequest request) {
+    public AuthenticationResponse authenticate(AuthenticationRequest request) throws UserNotFoundException {
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
-        User user = userService.findByEmail(request.getEmail()).orElseThrow(() -> new CreateEntityException("User"));
+        User user = userService.findByEmail(request.getEmail()).orElseThrow(() -> new UserNotFoundException());
         return generateTokens(user);
     }
 
     @Override
-    public AuthenticationResponse refreshToken(AuthenticationRequest request) {
-        User user = userService.findByEmail(request.getEmail()).orElseThrow(() -> new CreateEntityException("User"));
+    public AuthenticationResponse refreshToken(AuthenticationRequest request) throws UserNotFoundException, TokenNotValidException {
+        User user = userService.findByEmail(request.getEmail()).orElseThrow(() -> new UserNotFoundException());
         if (jwtService.isTokenValid(request.getRefreshToken(), user)) {
             return generateTokens(user);
         }
-        throw new CreateEntityException("refresh token");
+        throw new TokenNotValidException("Token di refresh non valido");
     }
 
     public AuthenticationResponse generateTokens(User user) {
