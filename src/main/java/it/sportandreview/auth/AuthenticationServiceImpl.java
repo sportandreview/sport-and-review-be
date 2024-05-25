@@ -9,30 +9,18 @@ import it.sportandreview.user.UserDTO;
 import it.sportandreview.user.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Service;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class AuthenticationServiceImpl implements AuthenticationService {
 
     private final JwtService jwtService;
     private final UserService userService;
     private final AuthenticationManager authenticationManager;
-
-    @Autowired
-    public AuthenticationServiceImpl(
-            JwtService jwtService,
-            UserService userService,
-            @Lazy AuthenticationManager authenticationManager
-    ) {
-        this.jwtService = jwtService;
-        this.userService = userService;
-        this.authenticationManager = authenticationManager;
-    }
 
     private static final long TOKEN_EXPIRATION_TIME = 1000 * 60 * 60;
     private static final long REFRESH_TOKEN_EXPIRATION_TIME = 1000 * 60 * 70;
