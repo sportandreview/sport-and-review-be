@@ -4,7 +4,7 @@ import it.sportandreview.exception.NotGenerateCodeException;
 import it.sportandreview.user.*;
 import it.sportandreview.user_code_type.UserCodeType;
 import it.sportandreview.user_code_type.UserCodeTypeRepository;
-import it.sportandreview.utils.Sha256Utils;
+import it.sportandreview.util.Sha256Utils;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;

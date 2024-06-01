@@ -80,3 +80,6 @@ docker:
 
 SportAndReview:
   password-url: https://www.esempio.com/pagina
+
+jwt:
+  secret: ${JWT_SECRET}

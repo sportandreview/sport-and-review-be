@@ -1,4 +1,4 @@
-package it.sportandreview.utils;
+package it.sportandreview.util;
 
 import org.apache.commons.codec.digest.DigestUtils;
 

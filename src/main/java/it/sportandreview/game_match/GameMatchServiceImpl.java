@@ -26,7 +26,7 @@ import it.sportandreview.slot_planning.SlotPlanningRepository;
 import it.sportandreview.team.TeamRepository;
 import it.sportandreview.user.User;
 import it.sportandreview.user.UserRepository;
-import it.sportandreview.utils.Sha256Utils;
+import it.sportandreview.util.Sha256Utils;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;

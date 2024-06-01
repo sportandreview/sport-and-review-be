@@ -1,8 +1,11 @@
-package it.sportandreview.auth;
+package it.sportandreview.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import it.sportandreview.admin_user.AdminUserDTO;
-import it.sportandreview.dto.ApiResponseDTO;
+import it.sportandreview.dto.request.AuthenticationRequestDTO;
+import it.sportandreview.dto.response.AuthenticationResponseDTO;
+import it.sportandreview.service.AuthenticationService;
+import it.sportandreview.dto.response.ApiResponseDTO;
 import it.sportandreview.exception.TokenNotValidException;
 import it.sportandreview.exception.UserAlreadyExistException;
 import it.sportandreview.exception.UserNotFoundException;
@@ -27,9 +30,9 @@ public class AuthenticationController {
 
     @PostMapping("/register/player")
     @Operation(summary = "Registra un nuovo utente player")
-    public ResponseEntity<ApiResponseDTO<AuthenticationResponse>> register(@Valid @RequestBody PlayerUserDTO playerUserDTO) throws UserAlreadyExistException {
+    public ResponseEntity<ApiResponseDTO<AuthenticationResponseDTO>> register(@Valid @RequestBody PlayerUserDTO playerUserDTO) throws UserAlreadyExistException {
         authenticationService.register(playerUserDTO, Role.USER);
-        ApiResponseDTO<AuthenticationResponse> response = ApiResponseDTO.<AuthenticationResponse>builder()
+        ApiResponseDTO<AuthenticationResponseDTO> response = ApiResponseDTO.<AuthenticationResponseDTO>builder()
                 .status(HttpServletResponse.SC_OK)
                 .message("Player registrato con successo!")
                 .build();
@@ -38,9 +41,9 @@ public class AuthenticationController {
 
     @PostMapping("/register/admin")
     @Operation(summary = "Registra un nuovo utente admin")
-    public ResponseEntity<ApiResponseDTO<AuthenticationResponse>> register(@Valid @RequestBody AdminUserDTO adminUserDTO) throws UserAlreadyExistException {
+    public ResponseEntity<ApiResponseDTO<AuthenticationResponseDTO>> register(@Valid @RequestBody AdminUserDTO adminUserDTO) throws UserAlreadyExistException {
         authenticationService.register(adminUserDTO, Role.ADMIN);
-        ApiResponseDTO<AuthenticationResponse> response = ApiResponseDTO.<AuthenticationResponse>builder()
+        ApiResponseDTO<AuthenticationResponseDTO> response = ApiResponseDTO.<AuthenticationResponseDTO>builder()
                 .status(HttpServletResponse.SC_OK)
                 .message("Admin registrato con successo")
                 .result(null)
@@ -50,8 +53,8 @@ public class AuthenticationController {
 
     @PostMapping("/authenticate")
     @Operation(summary = "Autentica un utente")
-    public ResponseEntity<ApiResponseDTO<AuthenticationResponse>> authenticate(@Valid @RequestBody AuthenticationRequest request) throws UserNotFoundException {
-        ApiResponseDTO<AuthenticationResponse> response = ApiResponseDTO.<AuthenticationResponse>builder()
+    public ResponseEntity<ApiResponseDTO<AuthenticationResponseDTO>> authenticate(@Valid @RequestBody AuthenticationRequestDTO request) throws UserNotFoundException {
+        ApiResponseDTO<AuthenticationResponseDTO> response = ApiResponseDTO.<AuthenticationResponseDTO>builder()
                 .status(HttpServletResponse.SC_OK)
                 .message("Utente autenticato con successo")
                 .result(authenticationService.authenticate(request))
@@ -61,8 +64,8 @@ public class AuthenticationController {
 
     @PutMapping("/refresh")
     @Operation(summary = "Aggiorna il token dell'utente")
-    public ResponseEntity<ApiResponseDTO<AuthenticationResponse>> refreshToken(@Valid @RequestBody AuthenticationRequest request) throws UserNotFoundException, TokenNotValidException {
-        ApiResponseDTO<AuthenticationResponse> response = ApiResponseDTO.<AuthenticationResponse>builder()
+    public ResponseEntity<ApiResponseDTO<AuthenticationResponseDTO>> refreshToken(@Valid @RequestBody AuthenticationRequestDTO request) throws UserNotFoundException, TokenNotValidException {
+        ApiResponseDTO<AuthenticationResponseDTO> response = ApiResponseDTO.<AuthenticationResponseDTO>builder()
                 .status(HttpServletResponse.SC_OK)
                 .message("Token aggiornato con successo")
                 .result(authenticationService.refreshToken(request))
