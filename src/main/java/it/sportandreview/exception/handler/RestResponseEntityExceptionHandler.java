@@ -25,6 +25,16 @@ import java.util.stream.Collectors;
 @Slf4j
 public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionHandler {
 
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(BadRequestException.class)
+    public ResponseEntity<ApiResponseDTO> handleBadRequestException(BadRequestException ex, WebRequest request) {
+        var error = ApiResponseDTO.builder()
+                .status(HttpServletResponse.SC_BAD_REQUEST)
+                .message(ex.getMessage())
+                .build();
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+    }
+
     @ResponseStatus(HttpStatus.CONFLICT)
     @ExceptionHandler(UserAlreadyExistException.class)
     public ResponseEntity<ApiResponseDTO> handleUserAlreadyExistException(UserAlreadyExistException ex, WebRequest request) {
@@ -88,5 +98,15 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
             rejectedValue = String.valueOf(((FieldError) error).getRejectedValue());
         }
         return new ValidationErrorResponseDTO(error.getObjectName(), fieldError, error.getDefaultMessage(), rejectedValue);
+    }
+
+    // Gestore di fallback per tutte le altre eccezioni
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ApiResponseDTO> handleAllOtherExceptions(Exception ex, WebRequest request) {
+        var error = ApiResponseDTO.builder()
+                .status(HttpServletResponse.SC_INTERNAL_SERVER_ERROR)
+                .message("Errore interno del server: " + ex.getMessage())
+                .build();
+        return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

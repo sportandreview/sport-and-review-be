@@ -20,7 +20,4 @@ public class FilterController {
     public FilterController(FilterService service) {
         this.service = service;
     }
-
-
-
 }
