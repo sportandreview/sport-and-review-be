@@ -9,7 +9,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -18,6 +17,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -28,15 +28,24 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
 
     @Override
     protected ResponseEntity<Object> handleHttpMessageNotReadable(HttpMessageNotReadableException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
+        String message = "Invalid request: ";
+        if (ex.getCause() instanceof com.fasterxml.jackson.databind.exc.MismatchedInputException) {
+            message += "JSON parse error - please check the request body.";
+        } else if (ex.getCause() instanceof java.io.EOFException) {
+            message += "Request body is missing.";
+        } else {
+            message += ex.getMessage();
+        }
+
         var error = ApiResponseDTO.builder()
                 .status(HttpServletResponse.SC_BAD_REQUEST)
-                .message("Failed to read request: " + ex.getMessage())
+                .message(message)
                 .build();
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 
-    @ResponseStatus(HttpStatus.CONFLICT)
     @ExceptionHandler(UserAlreadyExistException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
     public ResponseEntity<ApiResponseDTO> handleUserAlreadyExistException(UserAlreadyExistException ex, WebRequest request) {
         var error = ApiResponseDTO.builder()
                 .status(HttpServletResponse.SC_CONFLICT)
@@ -45,8 +54,8 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
         return new ResponseEntity<>(error, HttpStatus.CONFLICT);
     }
 
-    @ResponseStatus(HttpStatus.NOT_FOUND)
     @ExceptionHandler(UserNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
     public ResponseEntity<ApiResponseDTO> handleUserNotFoundException(UserNotFoundException ex, WebRequest request) {
         var error = ApiResponseDTO.builder()
                 .status(HttpServletResponse.SC_NOT_FOUND)
@@ -55,8 +64,8 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
         return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
     }
 
-    @ResponseStatus(HttpStatus.UNAUTHORIZED)
     @ExceptionHandler(UnauthorizedException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
     public ResponseEntity<ApiResponseDTO> handleUnauthorizedException(UnauthorizedException ex, WebRequest request) {
         var error = ApiResponseDTO.builder()
                 .status(HttpServletResponse.SC_UNAUTHORIZED)
@@ -65,8 +74,8 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
         return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
     }
 
-    @ResponseStatus(HttpStatus.UNAUTHORIZED)
     @ExceptionHandler(BadCredentialsException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
     public ResponseEntity<ApiResponseDTO> handleBadCredentialsException(BadCredentialsException ex, WebRequest request) {
         var error = ApiResponseDTO.builder()
                 .status(HttpServletResponse.SC_UNAUTHORIZED)
@@ -105,7 +114,7 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
     public ResponseEntity<ApiResponseDTO> handleAllOtherExceptions(Exception ex, WebRequest request) {
         var error = ApiResponseDTO.builder()
                 .status(HttpServletResponse.SC_INTERNAL_SERVER_ERROR)
-                .message("Errore interno del server: " + ex.getMessage())
+                .message("Internal server error: " + ex.getMessage())
                 .build();
         return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }
