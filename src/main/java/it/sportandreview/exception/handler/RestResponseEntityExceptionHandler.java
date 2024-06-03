@@ -4,6 +4,7 @@ import it.sportandreview.dto.response.ApiResponseDTO;
 import it.sportandreview.dto.response.ValidationErrorResponseDTO;
 import it.sportandreview.exception.*;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.ws.rs.BadRequestException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
