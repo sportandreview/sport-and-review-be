@@ -1,4 +1,4 @@
-package it.sportandreview.auth;
+package it.sportandreview.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class AuthenticationResponse {
+public class AuthenticationResponseDTO {
 
     private Long userId;
     private String token;

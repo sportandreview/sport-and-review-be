@@ -1,30 +1,17 @@
 package it.sportandreview.player_review;
 
-import it.sportandreview.booked_slot.BookedSlot;
-import it.sportandreview.booked_slot.BookedSlotDTO;
 import it.sportandreview.booked_slot.BookedSlotService;
-import it.sportandreview.club.Club;
-import it.sportandreview.club.ClubDTO;
-import it.sportandreview.club_review.ClubReviewDTO;
 import it.sportandreview.exception.CreateEntityException;
 import it.sportandreview.exception.NotFoundException;
 import it.sportandreview.game_match.*;
-import it.sportandreview.payment.PaymentDTO;
-import it.sportandreview.utils.Sha256Utils;
+import it.sportandreview.util.Sha256Utils;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.Duration;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.temporal.ChronoUnit;
-import java.util.Date;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 

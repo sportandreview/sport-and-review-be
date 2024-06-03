@@ -1,7 +1,7 @@
 package it.sportandreview.exception.handler;
 
-import it.sportandreview.dto.ApiResponseDTO;
-import it.sportandreview.dto.ValidationErrorDTO;
+import it.sportandreview.dto.response.ApiResponseDTO;
+import it.sportandreview.dto.response.ValidationErrorResponseDTO;
 import it.sportandreview.exception.*;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -27,37 +27,66 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
 
     @ResponseStatus(HttpStatus.CONFLICT)
     @ExceptionHandler(UserAlreadyExistException.class)
-    public ResponseEntity<ApiResponseDTO> userAlreadyExistException (UserAlreadyExistException userAlreadyExistException, WebRequest request) {
+    public ResponseEntity<ApiResponseDTO> handleUserAlreadyExistException(UserAlreadyExistException ex, WebRequest request) {
         var error = ApiResponseDTO.builder()
                 .status(HttpServletResponse.SC_CONFLICT)
-                .message(userAlreadyExistException.getMessage())
+                .message(ex.getMessage())
                 .build();
         return new ResponseEntity<>(error, HttpStatus.CONFLICT);
     }
 
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    @ExceptionHandler(UserNotFoundException.class)
+    public ResponseEntity<ApiResponseDTO> handleUserNotFoundException(UserNotFoundException ex, WebRequest request) {
+        var error = ApiResponseDTO.builder()
+                .status(HttpServletResponse.SC_NOT_FOUND)
+                .message(ex.getMessage())
+                .build();
+        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+    }
+
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    @ExceptionHandler(UnauthorizedException.class)
+    public ResponseEntity<ApiResponseDTO> handleUnauthorizedException(UnauthorizedException ex, WebRequest request) {
+        var error = ApiResponseDTO.builder()
+                .status(HttpServletResponse.SC_UNAUTHORIZED)
+                .message(ex.getMessage())
+                .build();
+        return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
+    }
+
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<ApiResponseDTO> handleBadCredentialsException(BadCredentialsException ex, WebRequest request) {
+        var error = ApiResponseDTO.builder()
+                .status(HttpServletResponse.SC_UNAUTHORIZED)
+                .message(ex.getMessage())
+                .build();
+        return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
+    }
+
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
-        List<ValidationErrorDTO> validationErrorDetails = ex.getBindingResult()
+        List<ValidationErrorResponseDTO> validationErrorDetails = ex.getBindingResult()
                 .getAllErrors()
                 .stream()
-                .map(error -> mapToErrorMessageDto(error))
+                .map(this::mapToErrorMessageDto)
                 .collect(Collectors.toList());
 
-        ApiResponseDTO apiResponseDTO = ApiResponseDTO.builder()
+        ApiResponseDTO<List<ValidationErrorResponseDTO>> apiResponseDTO = ApiResponseDTO.<List<ValidationErrorResponseDTO>>builder()
                 .status(status.value())
                 .result(validationErrorDetails)
                 .build();
-        return new ResponseEntity<>(apiResponseDTO,status);
+        return new ResponseEntity<>(apiResponseDTO, status);
     }
 
-
-    private ValidationErrorDTO mapToErrorMessageDto(ObjectError error) {
+    private ValidationErrorResponseDTO mapToErrorMessageDto(ObjectError error) {
         String fieldError = "";
         String rejectedValue = "";
-        if(error instanceof org.springframework.validation.FieldError) {
+        if (error instanceof FieldError) {
             fieldError = ((FieldError) error).getField();
-            rejectedValue = (String)((FieldError) error).getRejectedValue();
+            rejectedValue = String.valueOf(((FieldError) error).getRejectedValue());
         }
-        return new ValidationErrorDTO(error.getObjectName(),fieldError,error.getDefaultMessage(),rejectedValue);
+        return new ValidationErrorResponseDTO(error.getObjectName(), fieldError, error.getDefaultMessage(), rejectedValue);
     }
 }

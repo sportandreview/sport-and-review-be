@@ -10,7 +10,7 @@ import it.sportandreview.slot.FieldSlotsDTO;
 import it.sportandreview.slot.SlotDTO;
 import it.sportandreview.slot_planning.SlotPlanningService;
 import it.sportandreview.sport.SportEnum;
-import it.sportandreview.utils.Sha256Utils;
+import it.sportandreview.util.Sha256Utils;
 import jakarta.validation.constraints.NotNull;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;

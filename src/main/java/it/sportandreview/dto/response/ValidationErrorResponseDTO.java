@@ -1,4 +1,4 @@
-package it.sportandreview.dto;
+package it.sportandreview.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class ValidationErrorDTO {
+public class ValidationErrorResponseDTO {
     private String object;
     private String field;
     private String message;
