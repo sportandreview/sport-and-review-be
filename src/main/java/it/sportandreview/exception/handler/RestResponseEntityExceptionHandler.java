@@ -4,12 +4,12 @@ import it.sportandreview.dto.response.ApiResponseDTO;
 import it.sportandreview.dto.response.ValidationErrorResponseDTO;
 import it.sportandreview.exception.*;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.ws.rs.BadRequestException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -26,12 +26,11 @@ import java.util.stream.Collectors;
 @Slf4j
 public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionHandler {
 
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ExceptionHandler(BadRequestException.class)
-    public ResponseEntity<ApiResponseDTO> handleBadRequestException(BadRequestException ex, WebRequest request) {
+    @Override
+    protected ResponseEntity<Object> handleHttpMessageNotReadable(HttpMessageNotReadableException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
         var error = ApiResponseDTO.builder()
                 .status(HttpServletResponse.SC_BAD_REQUEST)
-                .message(ex.getMessage())
+                .message("Failed to read request: " + ex.getMessage())
                 .build();
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
