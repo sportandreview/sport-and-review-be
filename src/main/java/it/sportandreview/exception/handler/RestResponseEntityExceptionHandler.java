@@ -9,6 +9,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -24,6 +25,15 @@ import java.util.stream.Collectors;
 @ControllerAdvice
 @Slf4j
 public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionHandler {
+
+    @Override
+    protected ResponseEntity<Object> handleHttpMessageNotReadable(HttpMessageNotReadableException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
+        var error = ApiResponseDTO.builder()
+                .status(HttpServletResponse.SC_BAD_REQUEST)
+                .message("Failed to read request")
+                .build();
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+    }
 
     @ResponseStatus(HttpStatus.CONFLICT)
     @ExceptionHandler(UserAlreadyExistException.class)
@@ -88,5 +98,15 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
             rejectedValue = String.valueOf(((FieldError) error).getRejectedValue());
         }
         return new ValidationErrorResponseDTO(error.getObjectName(), fieldError, error.getDefaultMessage(), rejectedValue);
+    }
+
+    // Gestore di fallback per tutte le altre eccezioni
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ApiResponseDTO> handleAllOtherExceptions(Exception ex, WebRequest request) {
+        var error = ApiResponseDTO.builder()
+                .status(HttpServletResponse.SC_INTERNAL_SERVER_ERROR)
+                .message("Errore interno del server: " + ex.getMessage())
+                .build();
+        return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }
