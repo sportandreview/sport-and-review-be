@@ -2,9 +2,7 @@ package it.sportandreview.user_code_type;
 
 import it.sportandreview.exception.CreateEntityException;
 import it.sportandreview.exception.NotFoundException;
-import it.sportandreview.game_match.GameMatch;
-import it.sportandreview.user.User;
-import it.sportandreview.utils.Sha256Utils;
+import it.sportandreview.util.Sha256Utils;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;

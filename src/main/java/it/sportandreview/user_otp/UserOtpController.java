@@ -1,7 +1,7 @@
 package it.sportandreview.user_otp;
 
 import io.swagger.v3.oas.annotations.Operation;
-import it.sportandreview.dto.ApiResponseDTO;
+import it.sportandreview.dto.response.ApiResponseDTO;
 import it.sportandreview.user_code_type.UserCodeTypeEnum;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;

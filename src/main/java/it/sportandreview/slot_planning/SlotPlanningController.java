@@ -2,7 +2,7 @@ package it.sportandreview.slot_planning;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import it.sportandreview.dto.ApiResponseDTO;
+import it.sportandreview.dto.response.ApiResponseDTO;
 import it.sportandreview.slot.SlotDTO;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;

@@ -1,4 +1,4 @@
-package it.sportandreview.dto;
+package it.sportandreview.dto.response;
 
 import lombok.*;
 

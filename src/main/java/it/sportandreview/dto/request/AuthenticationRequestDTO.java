@@ -1,4 +1,4 @@
-package it.sportandreview.auth;
+package it.sportandreview.dto.request;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class AuthenticationRequest {
+public class AuthenticationRequestDTO {
 
     @Email(message = "Invalid email format")
     @NotBlank(message = "Il campo email è obbligatorio")

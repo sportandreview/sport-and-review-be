@@ -2,7 +2,7 @@ package it.sportandreview.admin_user;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import it.sportandreview.dto.ApiResponseDTO;
+import it.sportandreview.dto.response.ApiResponseDTO;
 import it.sportandreview.user.UserService;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;

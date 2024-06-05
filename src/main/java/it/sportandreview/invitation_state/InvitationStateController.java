@@ -1,7 +1,7 @@
 package it.sportandreview.invitation_state;
 
 import io.swagger.v3.oas.annotations.Operation;
-import it.sportandreview.dto.ApiResponseDTO;
+import it.sportandreview.dto.response.ApiResponseDTO;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

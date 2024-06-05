@@ -3,7 +3,7 @@ package it.sportandreview.user;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import it.sportandreview.admin_user.AdminUserDTO;
-import it.sportandreview.dto.ApiResponseDTO;
+import it.sportandreview.dto.response.ApiResponseDTO;
 import it.sportandreview.player_user.PlayerUserDTO;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
