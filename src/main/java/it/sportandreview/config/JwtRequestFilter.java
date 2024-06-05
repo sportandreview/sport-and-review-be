@@ -43,8 +43,6 @@ public class JwtRequestFilter extends OncePerRequestFilter {
             } catch (ExpiredJwtException e) {
                 throw new UnauthorizedException("Accesso non autorizzato: token JWT scaduto.");
             }
-        } else {
-            logger.warn("Il token JWT non inizia con la stringa Bearer");
         }
 
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
