@@ -21,6 +21,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -112,7 +113,31 @@ public class ClubServiceImpl implements ClubService {
             return FieldSlotsDTO.builder().bookedSlotList(reducedBookedSlotDTO.getSlots()).bookableSlotList(slots).build();
         }
     }
+    @Override
+    @Transactional
+    public List<ClubDTO> findClubsWithinRadius(double userLatitude, double userLongitude, double radius) {
+        List<Club> clubs = clubRepository.findAll();
+        List<Club> clubsWithinRadius = clubs.stream().filter(club -> {
+            if (Objects.nonNull(club.getLatitude()) && Objects.nonNull(club.getLongitude())) {
+                double distance = calculateDistance(userLatitude, userLongitude, club.getLatitude(), club.getLongitude());
+                return distance <= radius;
+            }
+            return false;
+        }).collect(Collectors.toList());
+        return clubMapper.toDto(clubsWithinRadius);
+    }
+    private double calculateDistance(double userLatitude, double userLongitude, double clubLatitude, double clubLongitude) {
+        final int R = 6371; // Raggio della Terra in chilometri
 
+        double latDistance = Math.toRadians(clubLatitude - userLatitude);
+        double lonDistance = Math.toRadians(clubLongitude - userLongitude);
+        double a = Math.sin(latDistance / 2) * Math.sin(latDistance / 2)
+                + Math.cos(Math.toRadians(userLatitude)) * Math.cos(Math.toRadians(clubLatitude))
+                * Math.sin(lonDistance / 2) * Math.sin(lonDistance / 2);
+        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        double distance = R * c; // La distanza è in chilometri
+        return distance;
+    }
     private Page<Club> findAllAndFilterByPredicates(@NotNull String city, @NotNull Long sportId, @NotNull Boolean preferred, @NotNull String name,
                                                     @NotNull Set<Long> selectedServices, @NotNull Long brandId, @NotNull Set<String> dimensions,
                                                     @NotNull Long playerUserId, @NotNull Set<String> footballGoals, @NotNull Long fieldId, @NotNull Set<String> fieldSizeDimensions, Pageable pageable) {

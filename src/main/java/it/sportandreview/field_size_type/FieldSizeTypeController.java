@@ -1,4 +1,4 @@
-package it.sportandreview.fieal_size_type;
+package it.sportandreview.field_size_type;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;

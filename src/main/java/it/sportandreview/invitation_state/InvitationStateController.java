@@ -1,8 +1,9 @@
 package it.sportandreview.invitation_state;
 
 import io.swagger.v3.oas.annotations.Operation;
+import it.sportandreview.dto.ApiResponseDTO;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -25,14 +26,24 @@ public class InvitationStateController {
 
     @Operation(summary = "Find all invitation states")
     @GetMapping
-    public ResponseEntity<List<InvitationStateDTO>> findAll() {
-        return new ResponseEntity<>(service.findAll(), HttpStatus.OK);
+    public ResponseEntity<ApiResponseDTO<List<InvitationStateDTO>>> findAll() {
+        ApiResponseDTO<List<InvitationStateDTO>> response = ApiResponseDTO.<List<InvitationStateDTO>>builder()
+                .status(HttpServletResponse.SC_OK)
+                .message("Lista di InvitationState")
+                .result(service.findAll())
+                .build();
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/{invitationStateId}")
     @Operation(summary = "Find invitation state by id")
-    public ResponseEntity<InvitationStateDTO> findById(@PathVariable Long invitationStateId) {
-        return new ResponseEntity<>(service.findById(invitationStateId), HttpStatus.OK);
+    public ResponseEntity<ApiResponseDTO<InvitationStateDTO>> findById(@PathVariable Long invitationStateId) {
+        ApiResponseDTO<InvitationStateDTO> response = ApiResponseDTO.<InvitationStateDTO>builder()
+                .status(HttpServletResponse.SC_OK)
+                .message("InvitationState per l'id richiesto")
+                .result(service.findById(invitationStateId))
+                .build();
+        return ResponseEntity.ok(response);
     }
 
 }

@@ -2,9 +2,11 @@ package it.sportandreview.game_match;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import it.sportandreview.dto.ApiResponseDTO;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,42 +28,70 @@ public class GameMatchController {
 
     @PostMapping
     @Operation(summary = "Create new game match")
-    public ResponseEntity<Long> create(@Parameter(name = "gameMatchDTO") @RequestBody GameMatchDTO gameMatchDTO) {
-        return new ResponseEntity<>(service.create(gameMatchDTO), HttpStatus.OK);
+    public ResponseEntity<ApiResponseDTO<Long>> create(@Parameter(name = "gameMatchDTO") @Valid @RequestBody GameMatchDTO gameMatchDTO) {
+        ApiResponseDTO<Long> response = ApiResponseDTO.<Long>builder()
+                .status(HttpServletResponse.SC_OK)
+                .message("GameMatch creato con successo")
+                .result(service.create(gameMatchDTO))
+                .build();
+        return ResponseEntity.ok(response);
     }
 
     @PutMapping
     @Operation(summary = "Update game match")
-    public ResponseEntity<GameMatchDTO> update(@Parameter(name = "gameMatchDTO") @RequestBody GameMatchDTO gameMatchDTO) {
-        return new ResponseEntity<>(service.update(gameMatchDTO), HttpStatus.OK);
+    public ResponseEntity<ApiResponseDTO<GameMatchDTO>> update(@Parameter(name = "gameMatchDTO") @Valid @RequestBody GameMatchDTO gameMatchDTO) {
+        ApiResponseDTO<GameMatchDTO> response = ApiResponseDTO.<GameMatchDTO>builder()
+                .status(HttpServletResponse.SC_OK)
+                .message("GameMatch aggiornato con successo")
+                .result(service.update(gameMatchDTO))
+                .build();
+        return ResponseEntity.ok(response);
     }
 
     @DeleteMapping("/{gameMatchId}/{playerUserId}")
     @Operation(summary = "Delete game match by id")
-    public ResponseEntity<Void> delete(@PathVariable Long gameMatchId, @PathVariable Long playerUserId) {
+    public ResponseEntity<ApiResponseDTO<Void>> delete(@PathVariable Long gameMatchId, @PathVariable Long playerUserId) {
         service.deleteById(gameMatchId, playerUserId);
-        return new ResponseEntity<>(HttpStatus.OK);
+        ApiResponseDTO<Void> response = ApiResponseDTO.<Void>builder()
+                .status(HttpServletResponse.SC_OK)
+                .message("GameMatch eliminato con successo")
+                .build();
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/byPlayerUserId/{playerUserId}")
     @Operation(summary = "Find player user by id")
-    public ResponseEntity<List<GameMatchDTO>> findByPlayerUserId(@PathVariable Long playerUserId) {
-        return new ResponseEntity<>(service.findByPlayerUserId(playerUserId), HttpStatus.OK);
+    public ResponseEntity<ApiResponseDTO<List<GameMatchDTO>>> findByPlayerUserId(@PathVariable Long playerUserId) {
+        ApiResponseDTO<List<GameMatchDTO>> response = ApiResponseDTO.<List<GameMatchDTO>>builder()
+                .status(HttpServletResponse.SC_OK)
+                .message("Lista di GameMatch per il PlayerUser selezionato")
+                .result(service.findByPlayerUserId(playerUserId))
+                .build();
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/newBooking")
     @Operation(summary = "Create new booking")
-    public ResponseEntity<Long> createBooking(@Parameter(name = "bookingGameMatchDTO") @RequestBody BookingGameMatchDTO bookingGameMatchDTO) {
-        return new ResponseEntity<>(service.createBooking(bookingGameMatchDTO), HttpStatus.OK);
+    public ResponseEntity<ApiResponseDTO<Long>> createBooking(@Parameter(name = "bookingGameMatchDTO") @RequestBody BookingGameMatchDTO bookingGameMatchDTO) {
+        ApiResponseDTO<Long> response = ApiResponseDTO.<Long>builder()
+                .status(HttpServletResponse.SC_OK)
+                .message("Lista di GameMatch per il PlayerUser selezionato")
+                .result(service.createBooking(bookingGameMatchDTO))
+                .build();
+        return ResponseEntity.ok(response);
     }
     @Operation(summary = "Find all game match")
     @GetMapping()
-    public ResponseEntity<List<ReducedGameMatchDTO>> findAll(@Parameter(name = "clubCity") String clubCity, @Parameter(name = "clubName") String clubName,
+    public ResponseEntity<ApiResponseDTO<List<ReducedGameMatchDTO>>> findAll(@Parameter(name = "clubCity") String clubCity, @Parameter(name = "clubName") String clubName,
                                                              @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(name = "date") LocalDate date,
                                                              @DateTimeFormat(iso = DateTimeFormat.ISO.TIME)@Parameter(name = "time") LocalTime time,
                                                              @Parameter(name = "sportId") Long sportId, @Parameter(name = "genderTeamId") Long genderTeamId,
                                                              @Parameter(name = "gameLevelId") Long gameLevelId, @Parameter(name = "playerUserId") Long playerUserId) {
-
-        return new ResponseEntity<>(service.findAll(clubCity, clubName, date, time, sportId, genderTeamId, gameLevelId, playerUserId), HttpStatus.OK);
+        ApiResponseDTO<List<ReducedGameMatchDTO>> response = ApiResponseDTO.<List<ReducedGameMatchDTO>>builder()
+                .status(HttpServletResponse.SC_OK)
+                .message("Lista di tutti i GameMatch")
+                .result(service.findAll(clubCity, clubName, date, time, sportId, genderTeamId, gameLevelId, playerUserId))
+                .build();
+        return ResponseEntity.ok(response);
     }
 }

@@ -2,11 +2,10 @@ package it.sportandreview.auto_evaluation;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import it.sportandreview.gender_type.GenderTypeDTO;
-import it.sportandreview.player_user.PlayerUserDTO;
-import it.sportandreview.player_user.PlayerUserService;
+import it.sportandreview.dto.ApiResponseDTO;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,26 +25,48 @@ public class AutoEvaluationController {
 
     @PostMapping
     @Operation(summary = "Create new auto evaluation")
-    public ResponseEntity<Long> create(@Parameter(name = "autoEvaluationDTO") @RequestBody AutoEvaluationDTO autoEvaluationDTO){
-        return new ResponseEntity<>(service.create(autoEvaluationDTO), HttpStatus.OK);
+    public ResponseEntity<ApiResponseDTO<Long>> create(@Parameter(name = "autoEvaluationDTO") @Valid @RequestBody AutoEvaluationDTO autoEvaluationDTO){
+        ApiResponseDTO<Long> response = ApiResponseDTO.<Long>builder()
+                .status(HttpServletResponse.SC_OK)
+                .message("Autovalutazione creata con successo")
+                .result(service.create(autoEvaluationDTO))
+                .build();
+        return ResponseEntity.ok(response);
+
+
     }
 
     @PostMapping("/bulk")
     @Operation(summary = "Create new list of auto evaluations")
-    public ResponseEntity<List<AutoEvaluationDTO>> createAll(@Parameter(name = "autoEvaluationDTO") @RequestBody List<AutoEvaluationDTO> autoEvaluationsDTO){
-        return new ResponseEntity<>(service.createAll(autoEvaluationsDTO), HttpStatus.OK);
+    public ResponseEntity<ApiResponseDTO<List<AutoEvaluationDTO>>> createAll(@Parameter(name = "autoEvaluationDTO") @Valid  @RequestBody List<AutoEvaluationDTO> autoEvaluationsDTO){
+        ApiResponseDTO<List<AutoEvaluationDTO>> response = ApiResponseDTO.<List<AutoEvaluationDTO>>builder()
+                .status(HttpServletResponse.SC_OK)
+                .message("Lista di Autovalutazioni creata con successo")
+                .result(service.createAll(autoEvaluationsDTO))
+                .build();
+        return ResponseEntity.ok(response);
     }
 
     @PutMapping
     @Operation(summary = "Update auto evaluation")
-    public ResponseEntity<AutoEvaluationDTO> update(@Parameter(name = "autoEvaluationDTO") @RequestBody AutoEvaluationDTO autoEvaluationDTO){
-        return new ResponseEntity<>(service.update(autoEvaluationDTO), HttpStatus.OK);
+    public ResponseEntity<ApiResponseDTO<AutoEvaluationDTO>> update(@Parameter(name = "autoEvaluationDTO") @Valid  @RequestBody AutoEvaluationDTO autoEvaluationDTO){
+        ApiResponseDTO<AutoEvaluationDTO> response = ApiResponseDTO.<AutoEvaluationDTO>builder()
+                .status(HttpServletResponse.SC_OK)
+                .message("Autovalutazione aggiornata con successo")
+                .result(service.update(autoEvaluationDTO))
+                .build();
+        return ResponseEntity.ok(response);
     }
 
     @Operation(summary = "Find all auto evaluations by player user")
     @GetMapping("/byPlayerUser/{playerUserId}")
-    public ResponseEntity<List<AutoEvaluationDTO>> findByPlayerUserId(@PathVariable Long playerUserId) {
-        return new ResponseEntity<>(service.findByPlayerUserId(playerUserId), HttpStatus.OK);
+    public ResponseEntity<ApiResponseDTO<List<AutoEvaluationDTO>>> findByPlayerUserId(@PathVariable Long playerUserId) {
+        ApiResponseDTO<List<AutoEvaluationDTO>> response = ApiResponseDTO.<List<AutoEvaluationDTO>>builder()
+                .status(HttpServletResponse.SC_OK)
+                .message("Lista di Autovalutazioni per l'utente specificato")
+                .result(service.findByPlayerUserId(playerUserId))
+                .build();
+        return ResponseEntity.ok(response);
     }
 
 }

@@ -2,8 +2,9 @@ package it.sportandreview.payment;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import it.sportandreview.dto.ApiResponseDTO;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -23,7 +24,12 @@ public class PaymentController {
     }
     @PostMapping
     @Operation(summary = "Create new payment")
-    public ResponseEntity<PaymentDTO> create(@Parameter(name = "gameMatchDTO") @RequestBody PaymentDTO paymentDTO) {
-        return new ResponseEntity<>(service.create(paymentDTO), HttpStatus.OK);
+    public ResponseEntity<ApiResponseDTO<PaymentDTO>> create(@Parameter(name = "paymentDTO") @RequestBody PaymentDTO paymentDTO) {
+        ApiResponseDTO<PaymentDTO> response = ApiResponseDTO.<PaymentDTO>builder()
+                .status(HttpServletResponse.SC_OK)
+                .message("Payment creata con successo")
+                .result(service.create(paymentDTO))
+                .build();
+        return ResponseEntity.ok(response);
     }
 }

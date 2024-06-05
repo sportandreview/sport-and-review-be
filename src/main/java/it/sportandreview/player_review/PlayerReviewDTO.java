@@ -1,10 +1,7 @@
 package it.sportandreview.player_review;
 
 import it.sportandreview.base.BaseDTO;
-import it.sportandreview.game_match.GameMatchDTO;
-import it.sportandreview.player_user.PlayerUserDTO;
-import it.sportandreview.sport.SportDTO;
-import it.sportandreview.user.UserDTO;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -22,13 +19,21 @@ import java.time.LocalTime;
 @SuperBuilder
 public class PlayerReviewDTO extends BaseDTO {
 
+    @NotNull(message = "il player è obbligatorio!")
     private Long playerUserId;
+    @NotNull(message = "il player che recensisce è obbligatorio!")
     private Long madeById;
+    @NotNull(message = "la partita è obbligatoria!")
     private Long gameMatchId;
+    @NotNull(message = "lo sport è obbligatorio!")
     private Long sportId;
+    @NotNull(message = "l'abbilità fisica è obbligatoria!")
     private Double physicalAbility;
+    @NotNull(message = "il comportamento è obbligatorio!")
     private Double behavior;
+    @NotNull(message = "la capacità tattica è obbligatoria!")
     private Double tacticalAbility;
+    @NotNull(message = "la capacità tecnica è obbligatoria!")
     private Double technicalAbility;
     private LocalDate votingDate;
     private LocalTime votingTime;

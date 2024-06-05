@@ -5,12 +5,14 @@ import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.time.ZonedDateTime;
 import java.util.Collection;
 import java.util.List;
 
@@ -24,15 +26,21 @@ public class UserDTO extends BaseDTO implements UserDetails {
     private String mobilePhone;
     private Boolean mobileEnabled;
     private String city;
+    @NotBlank(message = "Campo nickname obbligatorio!")
     private String nickname;
+    @NotBlank(message = "Campo nome obbligatorio!")
     private String name;
+    @NotBlank(message = "Campo cognome obbligatorio!")
     private String surname;
+    @NotNull(message = "Campo genere obbligatorio!")
+    private Long genderTypeId;
+    @NotNull(message = "Campo data di nascita obbligatorio!")
+    private ZonedDateTime birthDate;
     private String phone;
-
     @NotBlank(message = "Campo email obbligatorio!")
     @Email(message = "Formato mail non valido!")
     private String email;
-
+    @NotBlank(message = "Campo password obbligatorio!")
     private String password;
     private String cap;
     private String address;

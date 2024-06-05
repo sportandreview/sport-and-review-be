@@ -2,11 +2,10 @@ package it.sportandreview.join_request_state;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import it.sportandreview.join_request.JoinRequestDTO;
-import it.sportandreview.match_state.MatchState;
-import it.sportandreview.match_state.MatchStateDTO;
+import it.sportandreview.dto.ApiResponseDTO;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,17 +25,32 @@ public class JoinRequestStateController {
 
     @PostMapping
     @Operation(summary = "Create new join request state")
-    public ResponseEntity<Long> create(@Parameter(name = "joinRequestStateDTO") @RequestBody JoinRequestStateDTO joinRequestStateDTO){
-        return new ResponseEntity<>(service.create(joinRequestStateDTO), HttpStatus.OK);
+    public ResponseEntity<ApiResponseDTO<Long>> create(@Parameter(name = "joinRequestStateDTO") @Valid @RequestBody JoinRequestStateDTO joinRequestStateDTO){
+        ApiResponseDTO<Long> response = ApiResponseDTO.<Long>builder()
+                .status(HttpServletResponse.SC_OK)
+                .message("JoinRequestState creata con successo")
+                .result(service.create(joinRequestStateDTO))
+                .build();
+        return ResponseEntity.ok(response);
     }
     @Operation(summary = "Find all join request state")
-    public ResponseEntity<List<JoinRequestStateDTO>> findAll() {
-        return new ResponseEntity<>(service.findAll(), HttpStatus.OK);
+    public ResponseEntity<ApiResponseDTO<List<JoinRequestStateDTO>>> findAll() {
+        ApiResponseDTO<List<JoinRequestStateDTO>> response = ApiResponseDTO.<List<JoinRequestStateDTO>>builder()
+                .status(HttpServletResponse.SC_OK)
+                .message("Lista di JoinRequestState")
+                .result(service.findAll())
+                .build();
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/{joinRequestStateId}")
     @Operation(summary = "Find join request state by id")
-    public ResponseEntity<JoinRequestStateDTO> findById(@PathVariable Long joinRequestStateId) {
-        return new ResponseEntity<>(service.findById(joinRequestStateId), HttpStatus.OK);
+    public ResponseEntity<ApiResponseDTO<JoinRequestStateDTO>> findById(@PathVariable Long joinRequestStateId) {
+        ApiResponseDTO<JoinRequestStateDTO> response = ApiResponseDTO.<JoinRequestStateDTO>builder()
+                .status(HttpServletResponse.SC_OK)
+                .message("JoinRequestState per l'id richiesto")
+                .result(service.findById(joinRequestStateId))
+                .build();
+        return ResponseEntity.ok(response);
     }
 }

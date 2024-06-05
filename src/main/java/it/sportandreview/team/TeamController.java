@@ -2,8 +2,10 @@ package it.sportandreview.team;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import it.sportandreview.dto.ApiResponseDTO;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,13 +23,23 @@ public class TeamController {
 
     @PostMapping
     @Operation(summary = "Create new team")
-    public ResponseEntity<Long> create(@Parameter(name = "teamDTO") @RequestBody TeamDTO teamDTO){
-        return new ResponseEntity<>(service.create(teamDTO), HttpStatus.OK);
+    public ResponseEntity<ApiResponseDTO<Long>> create(@Parameter(name = "teamDTO") @Valid @RequestBody TeamDTO teamDTO){
+        ApiResponseDTO<Long> response = ApiResponseDTO.<Long>builder()
+                .status(HttpServletResponse.SC_OK)
+                .message("Team creato con successo")
+                .result(service.create(teamDTO))
+                .build();
+        return ResponseEntity.ok(response);
     }
 
     @PutMapping
     @Operation(summary = "Update team")
-    public ResponseEntity<TeamDTO> update(@Parameter(name = "clubDTO") @RequestBody TeamDTO TeamDTO){
-        return new ResponseEntity<>(service.update(TeamDTO), HttpStatus.OK);
+    public ResponseEntity<ApiResponseDTO<TeamDTO>> update(@Parameter(name = "clubDTO") @Valid @RequestBody TeamDTO teamDTO){
+        ApiResponseDTO<TeamDTO> response = ApiResponseDTO.<TeamDTO>builder()
+                .status(HttpServletResponse.SC_OK)
+                .message("Team aggiornato con successo")
+                .result(service.update(teamDTO))
+                .build();
+        return ResponseEntity.ok(response);
     }
 }

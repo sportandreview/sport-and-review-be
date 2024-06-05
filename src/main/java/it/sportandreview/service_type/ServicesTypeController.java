@@ -1,8 +1,9 @@
 package it.sportandreview.service_type;
 
 import io.swagger.v3.oas.annotations.Operation;
+import it.sportandreview.dto.ApiResponseDTO;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,7 +23,12 @@ public class ServicesTypeController {
 
     @Operation(summary = "Find all services types")
     @GetMapping
-    public ResponseEntity<List<ServicesTypeDTO>> findAll() {
-        return new ResponseEntity<>(service.findAll(), HttpStatus.OK);
+    public ResponseEntity<ApiResponseDTO<List<ServicesTypeDTO>>> findAll() {
+        ApiResponseDTO<List<ServicesTypeDTO>> response = ApiResponseDTO.<List<ServicesTypeDTO>>builder()
+                .status(HttpServletResponse.SC_OK)
+                .message("Lista di ServicesType")
+                .result(service.findAll())
+                .build();
+        return ResponseEntity.ok(response);
     }
 }

@@ -30,8 +30,8 @@ public class FieldReducedDTO extends BaseDTO {
     private Double size;
     private Double rating;
     private String description;
-    private GroundTypeDTO groundType;
-    private SportDTO sport;
+    private Long groundTypeId;
+    private Long sportId;
     private Boolean highlights;
     private Boolean markerPoint;
     private List<SlotDTO> bookedSlotList = new ArrayList<>();
