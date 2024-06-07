@@ -63,8 +63,8 @@ public class AuthenticationController {
             String emailOtp = otpService.generateOtp(request.getEmail());
             otpService.sendOtpEmail(request.getEmail(), emailOtp);
             String message = messageSource.getMessage("user.verify.email", null, LocaleContextHolder.getLocale());
-            return ResponseEntity.status(HttpServletResponse.SC_UNAUTHORIZED)
-                    .body(new ApiResponseDTO<>(HttpServletResponse.SC_UNAUTHORIZED, message));
+            return ResponseEntity.status(HttpServletResponse.SC_PRECONDITION_FAILED)
+                    .body(new ApiResponseDTO<>(HttpServletResponse.SC_PRECONDITION_FAILED, message));
         }
         return ResponseEntity.ok(new ApiResponseDTO<>(HttpServletResponse.SC_OK, "Utente autenticato con successo", response));
     }
