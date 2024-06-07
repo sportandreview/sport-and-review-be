@@ -1,12 +1,12 @@
 package it.sportandreview.field_size;
 
 import it.sportandreview.exception.NotFoundException;
-import it.sportandreview.fieal_size_type.FieldSizeType;
-import it.sportandreview.fieal_size_type.FieldSizeTypeMapper;
-import it.sportandreview.fieal_size_type.FieldSizeTypeRepository;
 import it.sportandreview.field.Field;
 import it.sportandreview.field.FieldMapper;
 import it.sportandreview.field.FieldRepository;
+import it.sportandreview.field_size_type.FieldSizeType;
+import it.sportandreview.field_size_type.FieldSizeTypeMapper;
+import it.sportandreview.field_size_type.FieldSizeTypeRepository;
 import it.sportandreview.sport.Sport;
 import it.sportandreview.sport.SportMapper;
 import it.sportandreview.sport.SportRepository;

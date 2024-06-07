@@ -2,14 +2,13 @@ package it.sportandreview.club;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import it.sportandreview.slot.FieldSlotsDTO;
+import it.sportandreview.dto.response.ApiResponseDTO;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
-import java.time.LocalTime;
 
 
 @RestController
@@ -24,13 +23,23 @@ public class ClubController {
     }
     @PostMapping
     @Operation(summary = "Create new club")
-    public ResponseEntity<Long> create(@Parameter(name = "clubDTO") @RequestBody ClubDTO clubDTO){
-        return new ResponseEntity<>(service.create(clubDTO), HttpStatus.OK);
+    public ResponseEntity<ApiResponseDTO<Long>> create(@Parameter(name = "clubDTO") @Valid @RequestBody ClubDTO clubDTO){
+        ApiResponseDTO<Long> response = ApiResponseDTO.<Long>builder()
+                .status(HttpServletResponse.SC_OK)
+                .message("Club creato con successo")
+                .result(service.create(clubDTO))
+                .build();
+        return ResponseEntity.ok(response);
     }
 
     @PutMapping
     @Operation(summary = "Update club")
-    public ResponseEntity<ClubDTO> update(@Parameter(name = "clubDTO") @RequestBody ClubDTO clubDTO){
-        return new ResponseEntity<>(service.update(clubDTO), HttpStatus.OK);
+    public ResponseEntity<ApiResponseDTO<ClubDTO>> update(@Parameter(name = "clubDTO") @Valid @RequestBody ClubDTO clubDTO){
+        ApiResponseDTO<ClubDTO> response = ApiResponseDTO.<ClubDTO>builder()
+                .status(HttpServletResponse.SC_OK)
+                .message("Club aggiornato con successo")
+                .result(service.update(clubDTO))
+                .build();
+        return ResponseEntity.ok(response);
     }
 }

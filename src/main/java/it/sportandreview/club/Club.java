@@ -81,4 +81,10 @@ public class Club extends IndexedEntity {
     @ManyToMany(mappedBy = "favoriteClubs")
     private Set<User> preferringPlayerUsers = new HashSet<>();
 
+    @Column(name = "latitude")
+    private Double latitude;
+
+    @Column(name = "longitude")
+    private Double longitude;
+
 }

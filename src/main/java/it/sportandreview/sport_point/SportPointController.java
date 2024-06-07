@@ -2,12 +2,13 @@ package it.sportandreview.sport_point;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import it.sportandreview.dto.response.ApiResponseDTO;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 
 
 @RestController
@@ -23,13 +24,23 @@ public class SportPointController {
 
     @PostMapping
     @Operation(summary = "Create new sport point")
-    public ResponseEntity<Long> create(@Parameter(name = "sportPointDTO") @RequestBody SportPointDTO sportPointDTO) {
-        return new ResponseEntity<>(service.create(sportPointDTO), HttpStatus.OK);
+    public ResponseEntity<ApiResponseDTO<Long>> create(@Parameter(name = "sportPointDTO") @Valid @RequestBody SportPointDTO sportPointDTO) {
+        ApiResponseDTO<Long> response = ApiResponseDTO.<Long>builder()
+                .status(HttpServletResponse.SC_OK)
+                .message("SportPoint creato con successo")
+                .result(service.create(sportPointDTO))
+                .build();
+        return ResponseEntity.ok(response);
     }
 
     @PutMapping
     @Operation(summary = "Update sport point")
-    public ResponseEntity<SportPointDTO> update(@Parameter(name = "sportPointDTO") @RequestBody SportPointDTO sportPointDTO) {
-        return new ResponseEntity<>(service.update(sportPointDTO), HttpStatus.OK);
+    public ResponseEntity<ApiResponseDTO<SportPointDTO>> update(@Parameter(name = "sportPointDTO") @Valid @RequestBody SportPointDTO sportPointDTO) {
+        ApiResponseDTO<SportPointDTO> response = ApiResponseDTO.<SportPointDTO>builder()
+                .status(HttpServletResponse.SC_OK)
+                .message("SportPoint aggiornato con successo")
+                .result(service.update(sportPointDTO))
+                .build();
+        return ResponseEntity.ok(response);
     }
 }

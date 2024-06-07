@@ -1,4 +1,4 @@
-package it.sportandreview.fieal_size_type;
+package it.sportandreview.field_size_type;
 
 import it.sportandreview.base.IndexedEntity;
 import jakarta.persistence.*;

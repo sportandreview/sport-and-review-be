@@ -1,8 +1,8 @@
 package it.sportandreview.field_size;
 
 import it.sportandreview.base.IndexedEntity;
-import it.sportandreview.fieal_size_type.FieldSizeType;
 import it.sportandreview.field.Field;
+import it.sportandreview.field_size_type.FieldSizeType;
 import it.sportandreview.sport.Sport;
 import jakarta.persistence.*;
 import lombok.*;

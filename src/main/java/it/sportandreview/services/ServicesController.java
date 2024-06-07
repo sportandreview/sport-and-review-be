@@ -2,12 +2,13 @@ package it.sportandreview.services;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import it.sportandreview.dto.response.ApiResponseDTO;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 
 
 @RestController
@@ -23,13 +24,23 @@ public class ServicesController {
 
     @PostMapping
     @Operation(summary = "Create new service")
-    public ResponseEntity<Long> create(@Parameter(name = "servicesDTO") @RequestBody ServicesDTO servicesDTO){
-        return new ResponseEntity<>(service.create(servicesDTO), HttpStatus.OK);
+    public ResponseEntity<ApiResponseDTO<Long>> create(@Parameter(name = "servicesDTO") @Valid @RequestBody ServicesDTO servicesDTO){
+        ApiResponseDTO<Long> response = ApiResponseDTO.<Long>builder()
+                .status(HttpServletResponse.SC_OK)
+                .message("Services creato con successo")
+                .result(service.create(servicesDTO))
+                .build();
+        return ResponseEntity.ok(response);
     }
 
     @PutMapping
     @Operation(summary = "Update service")
-    public ResponseEntity<ServicesDTO> update(@Parameter(name = "servicesDTO") @RequestBody ServicesDTO servicesDTO){
-        return new ResponseEntity<>(service.update(servicesDTO), HttpStatus.OK);
+    public ResponseEntity<ApiResponseDTO<ServicesDTO>> update(@Parameter(name = "servicesDTO") @Valid @RequestBody ServicesDTO servicesDTO){
+        ApiResponseDTO<ServicesDTO> response = ApiResponseDTO.<ServicesDTO>builder()
+                .status(HttpServletResponse.SC_OK)
+                .message("Services aggiornato con successo")
+                .result(service.update(servicesDTO))
+                .build();
+        return ResponseEntity.ok(response);
     }
 }
