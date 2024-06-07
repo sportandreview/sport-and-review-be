@@ -16,4 +16,5 @@ public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificat
     @Query("SELECT p FROM User p WHERE p.nickname LIKE %:wordInserted%")
     List<User> findByNicknameContaining(String wordInserted);
 
+    Optional<User> findByEmailOrPhone(String key, String key1);
 }

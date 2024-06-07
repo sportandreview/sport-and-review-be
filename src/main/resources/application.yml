@@ -11,10 +11,13 @@ management:
         include: health,info
 
 server:
-  port: ${PORT:8008}
+  port: ${PORT:8080}
   servlet:
-    contextPath: /rest/api/sportandreview
-
+    context-path: /rest/api/sportandreview
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
 
 spring:
   application:
@@ -56,6 +59,19 @@ spring:
             user-name-attribute: sub
   jackson:
     default-property-inclusion: non_null
+  mail:
+    host: smtp.office365.com
+    port: 587
+    username: ${SMTP_USERNAME:sportandreview@outlook.it}
+    password: ${SMTP_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+  messages:
+    basename: label
 
 springdoc:
   api-docs:
@@ -75,11 +91,16 @@ eureka:
 docker:
   smtp:
     server: smtp.office365.com
-    username: ${SMTP_USERNAME:sport-and-review@outlook.it}
-    pw: ${SMTP_PASSWORD:sportAndReview}
+    username: ${SMTP_USERNAME:sportandreview@outlook.it}
+    pw: ${SMTP_PASSWORD}
 
 SportAndReview:
   password-url: https://www.esempio.com/pagina
 
 jwt:
   secret: ${JWT_SECRET}
+
+mitto:
+  api:
+    key: ${MITTO_KEY}
+    url: ${MITTO_URL}

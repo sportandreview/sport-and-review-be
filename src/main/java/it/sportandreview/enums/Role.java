@@ -1,4 +1,4 @@
-package it.sportandreview.user;
+package it.sportandreview.enums;
 
 public enum Role {
     USER,

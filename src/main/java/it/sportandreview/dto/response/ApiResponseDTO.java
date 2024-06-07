@@ -11,4 +11,9 @@ public class ApiResponseDTO<T> {
     private int status;
     private String message;
     private T result;
+
+    public ApiResponseDTO(int status, String message) {
+        this.status = status;
+        this.message = message;
+    }
 }
