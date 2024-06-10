@@ -5,6 +5,7 @@ import it.sportandreview.slot.FieldSlotsDTO;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.List;
 
 public interface ClubService {
     Long create(ClubDTO clubDto);
@@ -17,5 +18,7 @@ public interface ClubService {
     ClubDTO findById(Long id);
 
     FieldSlotsDTO getAllBookableSlots(LocalDate date, Long fieldId, LocalTime time);
+
+    List<ClubDTO> findClubsWithinRadius(double userLatitude, double userLongitude, double radius);
 
 }

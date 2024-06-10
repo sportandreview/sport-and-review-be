@@ -1,16 +1,14 @@
 package it.sportandreview.service.impl;
 
+import it.sportandreview.dto.request.AuthenticationRequestDTO;
+import it.sportandreview.dto.response.AuthenticationResponseDTO;
+import it.sportandreview.enums.Role;
 import it.sportandreview.exception.BadCredentialsException;
 import it.sportandreview.exception.TokenNotValidException;
 import it.sportandreview.exception.UserAlreadyExistException;
 import it.sportandreview.exception.UserNotFoundException;
-import it.sportandreview.dto.request.AuthenticationRequestDTO;
-import it.sportandreview.dto.response.AuthenticationResponseDTO;
 import it.sportandreview.service.AuthenticationService;
-import it.sportandreview.user.Role;
-import it.sportandreview.user.User;
-import it.sportandreview.user.UserDTO;
-import it.sportandreview.user.UserService;
+import it.sportandreview.user.*;
 import it.sportandreview.util.JwtTokenUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,6 +18,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 @Slf4j
 @RequiredArgsConstructor
@@ -27,6 +27,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     private final JwtTokenUtil jwtTokenUtil;
     private final UserService userService;
+    private final UserRepository userRepository;
     private final UserDetailsService userDetailsService;
     private final AuthenticationManager authenticationManager;
 
@@ -34,9 +35,11 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private static final long REFRESH_TOKEN_EXPIRATION_TIME = 1000 * 60 * 70;
 
     @Override
-    public void register(UserDTO userDto, Role role) throws UserAlreadyExistException {
-        log.info("register Player START");
-        if(userService.findByEmail(userDto.getEmail()).isPresent())  throw new UserAlreadyExistException("Email già in uso!");
+    public void register(UserDTO userDto, Role role) {
+        log.info("Registering user with email: {}", userDto.getEmail());
+        if (userService.findByEmail(userDto.getEmail()).isPresent()) {
+            throw new UserAlreadyExistException();
+        }
         userDto.setRole(role);
         userService.create(userDto);
     }
@@ -72,5 +75,18 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 .mobilePhoneCheck(user.isMobilePhoneCheck())
                 .emailCheck(user.isEmailCheck())
                 .build();
+    }
+
+    public void updateVerificationStatus(String key, boolean verified) {
+        Optional<User> userOpt = userRepository.findByEmailOrPhone(key, key);
+        if (userOpt.isPresent()) {
+            User user = userOpt.get();
+            if (key.contains("@")) {
+                user.setEmailCheck(verified);
+            } else {
+                user.setMobilePhoneCheck(verified);
+            }
+            userRepository.save(user);
+        }
     }
 }

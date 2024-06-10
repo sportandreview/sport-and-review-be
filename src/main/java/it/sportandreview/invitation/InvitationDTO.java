@@ -1,9 +1,10 @@
 package it.sportandreview.invitation;
 
 import it.sportandreview.base.BaseDTO;
-import it.sportandreview.game_match.GameMatch;
+import it.sportandreview.game_match.GameMatchDTO;
 import it.sportandreview.invitation_state.InvitationStateDTO;
 import it.sportandreview.player_user.PlayerUserDTO;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -19,10 +20,13 @@ import java.time.ZonedDateTime;
 @EqualsAndHashCode(callSuper = true)
 @SuperBuilder
 public class InvitationDTO extends BaseDTO {
-
+    @NotNull(message = "la data dell'invito è obbligatoria")
     private ZonedDateTime date;
-    private GameMatch gameMatch;
+    @NotNull(message = "la partita è obbligatoria")
+    private GameMatchDTO gameMatch;
+    @NotNull(message = "lo stato dell'invito è obbligatorio")
     private InvitationStateDTO invitationState;
+    @NotNull(message = "il player è obbligatorio")
     private PlayerUserDTO playerUser;
 
 

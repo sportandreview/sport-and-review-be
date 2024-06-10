@@ -1,10 +1,9 @@
 package it.sportandreview.field;
 
 import it.sportandreview.base.BaseDTO;
-import it.sportandreview.club.ClubDTO;
-import it.sportandreview.ground_type.GroundTypeDTO;
 import it.sportandreview.services.ServicesDTO;
-import it.sportandreview.sport.SportDTO;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
@@ -19,18 +18,31 @@ import java.util.Set;
 @SuperBuilder
 public class FieldDTO extends BaseDTO {
 
+    @NotBlank(message = "nome campo è obbligatorio")
     private String name;
     private String fieldImage;
+
+    @NotNull(message = "orario di apertura obbligatorio!")
     private ZonedDateTime hourRangeStart;
+
+    @NotNull(message = "orario di chiusura obbligatorio!")
     private ZonedDateTime hourRangeEnd;
+
     private Double price;
     private Boolean covered;
     private Double size;
     private Double rating;
     private String description;
-    private GroundTypeDTO groundType;
-    private ClubDTO club;
-    private SportDTO sport;
+
+    @NotNull(message = "il tipo di terreno è obbligatorio")
+    private Long groundTypeId;
+
+    @NotNull(message = "il club è obbligatorio")
+    private Long clubId;
+
+    @NotNull(message = "lo sport è obbligatorio")
+    private Long sportId;
+
     private Boolean highlights;
     private Boolean markerPoint;
 

@@ -2,12 +2,13 @@ package it.sportandreview.sport;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import it.sportandreview.dto.response.ApiResponseDTO;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 
 
 @RestController
@@ -23,13 +24,23 @@ public class SportController {
 
     @PostMapping
     @Operation(summary = "Create new sport")
-    public ResponseEntity<Long> create(@Parameter(name = "sportDTO") @RequestBody SportDTO sportDTO) {
-        return new ResponseEntity<>(service.create(sportDTO), HttpStatus.OK);
+    public ResponseEntity<ApiResponseDTO<Long>> create(@Parameter(name = "sportDTO") @Valid @RequestBody SportDTO sportDTO) {
+        ApiResponseDTO<Long> response = ApiResponseDTO.<Long>builder()
+                .status(HttpServletResponse.SC_OK)
+                .message("Sport creato con successo")
+                .result(service.create(sportDTO))
+                .build();
+        return ResponseEntity.ok(response);
     }
 
     @PutMapping
     @Operation(summary = "Update sport")
-    public ResponseEntity<SportDTO> update(@Parameter(name = "sportDTO") @RequestBody SportDTO sportDTO) {
-        return new ResponseEntity<>(service.update(sportDTO), HttpStatus.OK);
+    public ResponseEntity<ApiResponseDTO<SportDTO>> update(@Parameter(name = "sportDTO") @Valid @RequestBody SportDTO sportDTO) {
+        ApiResponseDTO<SportDTO> response = ApiResponseDTO.<SportDTO>builder()
+                .status(HttpServletResponse.SC_OK)
+                .message("Sport aggiornato con successo")
+                .result(service.update(sportDTO))
+                .build();
+        return ResponseEntity.ok(response);
     }
 }

@@ -2,8 +2,10 @@ package it.sportandreview.sport_equipment;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import it.sportandreview.dto.response.ApiResponseDTO;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,24 +25,44 @@ public class SportEquipmentController {
 
     @PostMapping
     @Operation(summary = "Create new sport equipment")
-    public ResponseEntity<Long> create(@Parameter(name = "ballsDTO") @RequestBody SportEquipmentDTO sportEquipmentDTO){
-        return new ResponseEntity<>(service.create(sportEquipmentDTO), HttpStatus.OK);
+    public ResponseEntity<ApiResponseDTO<Long>> create(@Parameter(name = "ballsDTO") @Valid @RequestBody SportEquipmentDTO sportEquipmentDTO){
+        ApiResponseDTO<Long> response = ApiResponseDTO.<Long>builder()
+                .status(HttpServletResponse.SC_OK)
+                .message("SportEquipment creata con successo")
+                .result(service.create(sportEquipmentDTO))
+                .build();
+        return ResponseEntity.ok(response);
     }
 
     @PutMapping
     @Operation(summary = "Update sport equipment")
-    public ResponseEntity<SportEquipmentDTO> update(@Parameter(name = "sportEquipmentDTO") @RequestBody SportEquipmentDTO sportEquipmentDTO){
-        return new ResponseEntity<>(service.update(sportEquipmentDTO), HttpStatus.OK);
+    public ResponseEntity<ApiResponseDTO<SportEquipmentDTO>> update(@Parameter(name = "sportEquipmentDTO") @Valid @RequestBody SportEquipmentDTO sportEquipmentDTO){
+        ApiResponseDTO<SportEquipmentDTO> response = ApiResponseDTO.<SportEquipmentDTO>builder()
+                .status(HttpServletResponse.SC_OK)
+                .message("SportEquipment aggiornata con successo")
+                .result(service.update(sportEquipmentDTO))
+                .build();
+        return ResponseEntity.ok(response);
     }
 
     @Operation(summary = "Find all sport equipment")
-    public ResponseEntity<List<SportEquipmentDTO>> findAll() {
-        return new ResponseEntity<>(service.findAll(), HttpStatus.OK);
+    public ResponseEntity<ApiResponseDTO<List<SportEquipmentDTO>>> findAll() {
+        ApiResponseDTO<List<SportEquipmentDTO>> response = ApiResponseDTO.<List<SportEquipmentDTO>>builder()
+                .status(HttpServletResponse.SC_OK)
+                .message("Lista di SportEquipment")
+                .result(service.findAll())
+                .build();
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/{sportEquipmentId}")
     @Operation(summary = "Find sport equipment by id")
-    public ResponseEntity<SportEquipmentDTO> findById(@PathVariable Long sportEquipmentId) {
-        return new ResponseEntity<>(service.findById(sportEquipmentId), HttpStatus.OK);
+    public ResponseEntity<ApiResponseDTO<SportEquipmentDTO>> findById(@PathVariable Long sportEquipmentId) {
+        ApiResponseDTO<SportEquipmentDTO> response = ApiResponseDTO.<SportEquipmentDTO>builder()
+                .status(HttpServletResponse.SC_OK)
+                .message("SportEquipment per l'id richiesto")
+                .result(service.findById(sportEquipmentId))
+                .build();
+        return ResponseEntity.ok(response);
     }
 }

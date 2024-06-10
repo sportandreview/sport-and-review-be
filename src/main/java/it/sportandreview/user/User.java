@@ -2,6 +2,7 @@ package it.sportandreview.user;
 
 import it.sportandreview.base.IndexedEntity;
 import it.sportandreview.club.Club;
+import it.sportandreview.enums.Role;
 import it.sportandreview.field.Field;
 import it.sportandreview.gender_type.GenderType;
 import it.sportandreview.highlight.Highlight;

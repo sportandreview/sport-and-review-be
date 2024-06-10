@@ -16,4 +16,5 @@ public interface UserService {
 
     User updateProfileImage(Long userId, String profileImage);
 
+    Optional<User> findByEmailOrPhone(String key, String key1);
 }
