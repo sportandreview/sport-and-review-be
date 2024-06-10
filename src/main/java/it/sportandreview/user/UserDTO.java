@@ -1,6 +1,7 @@
 package it.sportandreview.user;
 
 import it.sportandreview.base.BaseDTO;
+import it.sportandreview.gender_type.GenderTypeDTO;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.Email;
@@ -33,8 +34,7 @@ public class UserDTO extends BaseDTO implements UserDetails {
     @NotBlank(message = "Campo cognome obbligatorio!")
     private String surname;
     @NotNull(message = "Campo genere obbligatorio!")
-    private Long genderTypeId;
-    @NotNull(message = "Campo data di nascita obbligatorio!")
+    private GenderTypeDTO genderType;
     private ZonedDateTime birthDate;
     private String phone;
     @NotBlank(message = "Campo email obbligatorio!")
