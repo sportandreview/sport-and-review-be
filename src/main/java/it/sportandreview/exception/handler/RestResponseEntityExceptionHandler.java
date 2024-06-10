@@ -4,7 +4,10 @@ import it.sportandreview.dto.response.ApiResponseDTO;
 import it.sportandreview.dto.response.ValidationErrorResponseDTO;
 import it.sportandreview.exception.*;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -23,14 +26,19 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @ControllerAdvice
+@RequiredArgsConstructor
 @Slf4j
 public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionHandler {
 
+    private final MessageSource messageSource;
+
     @Override
     protected ResponseEntity<Object> handleHttpMessageNotReadable(HttpMessageNotReadableException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
+        String message = messageSource.getMessage("request.invalid", null, LocaleContextHolder.getLocale());
+        log.error("handleHttpMessageNotReadable: {}", message, ex);
         var error = ApiResponseDTO.builder()
                 .status(HttpServletResponse.SC_BAD_REQUEST)
-                .message("Failed to read request")
+                .message(message)
                 .build();
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
@@ -38,9 +46,11 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
     @ResponseStatus(HttpStatus.CONFLICT)
     @ExceptionHandler(UserAlreadyExistException.class)
     public ResponseEntity<ApiResponseDTO> handleUserAlreadyExistException(UserAlreadyExistException ex, WebRequest request) {
+        String message = messageSource.getMessage("user.already.exists", null, LocaleContextHolder.getLocale());
+        log.error("handleUserAlreadyExistException: {}", message, ex);
         var error = ApiResponseDTO.builder()
                 .status(HttpServletResponse.SC_CONFLICT)
-                .message(ex.getMessage())
+                .message(message)
                 .build();
         return new ResponseEntity<>(error, HttpStatus.CONFLICT);
     }
@@ -48,9 +58,11 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
     @ResponseStatus(HttpStatus.NOT_FOUND)
     @ExceptionHandler(UserNotFoundException.class)
     public ResponseEntity<ApiResponseDTO> handleUserNotFoundException(UserNotFoundException ex, WebRequest request) {
+        String message = messageSource.getMessage("user.not.found", null, LocaleContextHolder.getLocale());
+        log.error("handleUserNotFoundException: {}", message, ex);
         var error = ApiResponseDTO.builder()
                 .status(HttpServletResponse.SC_NOT_FOUND)
-                .message(ex.getMessage())
+                .message(message)
                 .build();
         return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
     }
@@ -58,9 +70,11 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     @ExceptionHandler(UnauthorizedException.class)
     public ResponseEntity<ApiResponseDTO> handleUnauthorizedException(UnauthorizedException ex, WebRequest request) {
+        String message = messageSource.getMessage("user.unauthorized", null, LocaleContextHolder.getLocale());
+        log.error("handleUnauthorizedException: {}", message, ex);
         var error = ApiResponseDTO.builder()
                 .status(HttpServletResponse.SC_UNAUTHORIZED)
-                .message(ex.getMessage())
+                .message(message)
                 .build();
         return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
     }
@@ -68,9 +82,11 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     @ExceptionHandler(BadCredentialsException.class)
     public ResponseEntity<ApiResponseDTO> handleBadCredentialsException(BadCredentialsException ex, WebRequest request) {
+        String message = messageSource.getMessage("user.authenticate.failure", null, LocaleContextHolder.getLocale());
+        log.error("handleBadCredentialsException: {}", message, ex);
         var error = ApiResponseDTO.builder()
                 .status(HttpServletResponse.SC_UNAUTHORIZED)
-                .message(ex.getMessage())
+                .message(message)
                 .build();
         return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
     }
@@ -83,8 +99,11 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
                 .map(this::mapToErrorMessageDto)
                 .collect(Collectors.toList());
 
+        String message = messageSource.getMessage("validation.error", null, LocaleContextHolder.getLocale());
+        log.error("handleMethodArgumentNotValid: {}", message, ex);
         ApiResponseDTO<List<ValidationErrorResponseDTO>> apiResponseDTO = ApiResponseDTO.<List<ValidationErrorResponseDTO>>builder()
                 .status(status.value())
+                .message(message)
                 .result(validationErrorDetails)
                 .build();
         return new ResponseEntity<>(apiResponseDTO, status);
@@ -100,12 +119,13 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
         return new ValidationErrorResponseDTO(error.getObjectName(), fieldError, error.getDefaultMessage(), rejectedValue);
     }
 
-    // Gestore di fallback per tutte le altre eccezioni
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponseDTO> handleAllOtherExceptions(Exception ex, WebRequest request) {
+        log.error("Unhandled exception: ", ex);
+        String message = messageSource.getMessage("internal.server.error", null, LocaleContextHolder.getLocale());
         var error = ApiResponseDTO.builder()
                 .status(HttpServletResponse.SC_INTERNAL_SERVER_ERROR)
-                .message("Errore interno del server: " + ex.getMessage())
+                .message(message + ": " + ex.getMessage())
                 .build();
         return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }

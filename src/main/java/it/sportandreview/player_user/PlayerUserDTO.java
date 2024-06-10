@@ -1,14 +1,9 @@
 package it.sportandreview.player_user;
 
-import it.sportandreview.gender_type.GenderTypeDTO;
 import it.sportandreview.team.TeamDTO;
 import it.sportandreview.user.UserDTO;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-
-import java.time.ZonedDateTime;
 import java.util.HashSet;
 import java.util.Set;
 

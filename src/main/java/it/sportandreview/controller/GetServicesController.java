@@ -30,12 +30,8 @@ import it.sportandreview.sport.SportDTO;
 import it.sportandreview.sport.SportService;
 import it.sportandreview.sport_point.SportPointDTO;
 import it.sportandreview.sport_point.SportPointService;
-import it.sportandreview.user.PasswordRequest;
-import it.sportandreview.user.Role;
-import it.sportandreview.user_otp.ResetPassword;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -58,12 +54,11 @@ public class GetServicesController {
     private final GameLevelService gameLevelService;
     private final GenderTypeService genderTypeService;
     private final FieldService fieldService;
-    private final ResetPassword resetPassword;
 
     public GetServicesController(SportService sportService, SportPointService sportPointService, ServicesService servicesService,
                                  HighlightService highlightService, GameMatchService gameMatchservice, FieldService fieldservice,
                                  ClubService clubService, MatchStateService matchStateService, GameLevelService gameLevelService,
-                                 GenderTypeService genderTypeService, FieldService fieldService, ResetPassword resetPassword) {
+                                 GenderTypeService genderTypeService, FieldService fieldService) {
         this.sportService = sportService;
         this.sportPointService = sportPointService;
         this.servicesService = servicesService;
@@ -75,7 +70,6 @@ public class GetServicesController {
         this.gameLevelService = gameLevelService;
         this.genderTypeService = genderTypeService;
         this.fieldService = fieldService;
-        this.resetPassword = resetPassword;
     }
 
     @Operation(summary = "Find all sports")
@@ -300,18 +294,6 @@ public class GetServicesController {
                 .status(HttpServletResponse.SC_OK)
                 .message("Slot prenotati")
                 .result(clubService.getAllBookableSlots(date, fieldId, time))
-                .build();
-        return ResponseEntity.ok(response);
-    }
-
-    @PutMapping("/changePassword")
-    @Operation(summary = "Change password")
-    public ResponseEntity<ApiResponseDTO<Void>> changePassword(@RequestBody PasswordRequest passwordRequest, @RequestParam String code) {
-        resetPassword.changePassword(passwordRequest,code);
-        ApiResponseDTO<Void> response = ApiResponseDTO.<Void>builder()
-                .status(HttpServletResponse.SC_OK)
-                .message("password cambiata con successo")
-                .result(null)
                 .build();
         return ResponseEntity.ok(response);
     }

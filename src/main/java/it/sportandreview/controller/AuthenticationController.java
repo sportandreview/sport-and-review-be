@@ -10,38 +10,42 @@ import it.sportandreview.exception.TokenNotValidException;
 import it.sportandreview.exception.UserAlreadyExistException;
 import it.sportandreview.exception.UserNotFoundException;
 import it.sportandreview.player_user.PlayerUserDTO;
-import it.sportandreview.user.Role;
+import it.sportandreview.service.OtpService;
+import it.sportandreview.enums.Role;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/auth")
 public class AuthenticationController {
 
     private final AuthenticationService authenticationService;
-
-    @Autowired
-    public AuthenticationController(AuthenticationService authenticationService) {
-        this.authenticationService = authenticationService;
-    }
+    private final OtpService otpService;
+    private final MessageSource messageSource;
 
     @PostMapping("/register/player")
     @Operation(summary = "Registra un nuovo utente player")
-    public ResponseEntity<ApiResponseDTO<AuthenticationResponseDTO>> register(@Valid @RequestBody PlayerUserDTO playerUserDTO) throws UserAlreadyExistException {
+    public ResponseEntity<ApiResponseDTO<AuthenticationResponseDTO>> registerPlayer(@Valid @RequestBody PlayerUserDTO playerUserDTO) {
         authenticationService.register(playerUserDTO, Role.USER);
-        ApiResponseDTO<AuthenticationResponseDTO> response = ApiResponseDTO.<AuthenticationResponseDTO>builder()
-                .status(HttpServletResponse.SC_OK)
-                .message("Player registrato con successo!")
-                .build();
-        return ResponseEntity.ok().body(response);
+        String emailOtp = otpService.generateOtp(playerUserDTO.getEmail());
+        otpService.sendOtpEmail(playerUserDTO.getEmail(), emailOtp);
+        if (playerUserDTO.getMobilePhone() != null && !playerUserDTO.getMobilePhone().isEmpty()) {
+            String phoneOtp = otpService.generateOtp(playerUserDTO.getMobilePhone());
+            otpService.sendOtpSms(playerUserDTO.getMobilePhone(), phoneOtp);
+        }
+        String message = messageSource.getMessage("user.register.success", null, LocaleContextHolder.getLocale());
+        return ResponseEntity.ok(new ApiResponseDTO<>(HttpServletResponse.SC_OK, message));
     }
 
     @PostMapping("/register/admin")
     @Operation(summary = "Registra un nuovo utente admin")
-    public ResponseEntity<ApiResponseDTO<AuthenticationResponseDTO>> register(@Valid @RequestBody AdminUserDTO adminUserDTO) throws UserAlreadyExistException {
+    public ResponseEntity<ApiResponseDTO<AuthenticationResponseDTO>> registerAdmin(@Valid @RequestBody AdminUserDTO adminUserDTO) throws UserAlreadyExistException {
         authenticationService.register(adminUserDTO, Role.ADMIN);
         ApiResponseDTO<AuthenticationResponseDTO> response = ApiResponseDTO.<AuthenticationResponseDTO>builder()
                 .status(HttpServletResponse.SC_OK)
@@ -54,12 +58,15 @@ public class AuthenticationController {
     @PostMapping("/authenticate")
     @Operation(summary = "Autentica un utente")
     public ResponseEntity<ApiResponseDTO<AuthenticationResponseDTO>> authenticate(@Valid @RequestBody AuthenticationRequestDTO request) throws UserNotFoundException {
-        ApiResponseDTO<AuthenticationResponseDTO> response = ApiResponseDTO.<AuthenticationResponseDTO>builder()
-                .status(HttpServletResponse.SC_OK)
-                .message("Utente autenticato con successo")
-                .result(authenticationService.authenticate(request))
-                .build();
-        return ResponseEntity.ok(response);
+        AuthenticationResponseDTO response = authenticationService.authenticate(request);
+        if (!response.isEmailCheck()) {
+            String emailOtp = otpService.generateOtp(request.getEmail());
+            otpService.sendOtpEmail(request.getEmail(), emailOtp);
+            String message = messageSource.getMessage("user.verify.email", null, LocaleContextHolder.getLocale());
+            return ResponseEntity.status(HttpServletResponse.SC_PRECONDITION_FAILED)
+                    .body(new ApiResponseDTO<>(HttpServletResponse.SC_PRECONDITION_FAILED, message));
+        }
+        return ResponseEntity.ok(new ApiResponseDTO<>(HttpServletResponse.SC_OK, "Utente autenticato con successo", response));
     }
 
     @PutMapping("/refresh")

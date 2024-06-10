@@ -2,6 +2,7 @@ package it.sportandreview.user;
 
 import it.sportandreview.base.BaseDTO;
 import it.sportandreview.gender_type.GenderTypeDTO;
+import it.sportandreview.enums.Role;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.Email;
@@ -50,6 +51,9 @@ public class UserDTO extends BaseDTO implements UserDetails {
     @Enumerated(EnumType.STRING)
     private Role role;
 
+    public Role getRole() {
+        return role;
+    }
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority(role.name()));
