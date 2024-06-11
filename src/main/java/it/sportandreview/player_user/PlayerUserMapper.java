@@ -2,14 +2,13 @@ package it.sportandreview.player_user;
 
 import it.sportandreview.club.Club;
 import it.sportandreview.field.Field;
-import it.sportandreview.gender_type.GenderTypeMapper;
 import it.sportandreview.highlight.Highlight;
 import it.sportandreview.user.User;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 
-@Mapper(componentModel = "spring", uses={User.class, GenderTypeMapper.class})
+@Mapper(componentModel = "spring", uses={User.class})
 public abstract class PlayerUserMapper {
 
 

@@ -2,9 +2,9 @@ package it.sportandreview.user;
 
 import it.sportandreview.base.IndexedEntity;
 import it.sportandreview.club.Club;
+import it.sportandreview.enums.GenderType;
 import it.sportandreview.enums.Role;
 import it.sportandreview.field.Field;
-import it.sportandreview.gender_type.GenderType;
 import it.sportandreview.highlight.Highlight;
 import it.sportandreview.sport.Sport;
 import it.sportandreview.team.Team;
@@ -93,9 +93,7 @@ public class User extends IndexedEntity implements UserDetails {
     @Column(name = "technical_ability")
     private Double technicalAbility;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "gender_type_id", referencedColumnName = "id")
-    @ToString.Exclude
+    @Enumerated(EnumType.STRING)
     private GenderType genderType;
 
     @Column(name = "birth_date")

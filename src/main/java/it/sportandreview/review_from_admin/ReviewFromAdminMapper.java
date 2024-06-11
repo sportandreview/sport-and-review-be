@@ -5,14 +5,14 @@ import it.sportandreview.game_match.GameMatch;
 import it.sportandreview.game_match.GameMatchMapper;
 import it.sportandreview.game_match.GameMatchRepository;
 import it.sportandreview.user.User;
-import it.sportandreview.user.UserMapper;
+import it.sportandreview.user.UserMapperOld;
 import it.sportandreview.user.UserRepository;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 import org.springframework.beans.factory.annotation.Autowired;
 
-@Mapper(componentModel = "spring", uses={ReviewFromAdmin.class, UserMapper.class, GameMatchMapper.class})
+@Mapper(componentModel = "spring", uses={ReviewFromAdmin.class, UserMapperOld.class, GameMatchMapper.class})
 public abstract class ReviewFromAdminMapper {
 
     @Autowired

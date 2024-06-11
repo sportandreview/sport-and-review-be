@@ -1,14 +1,18 @@
 package it.sportandreview.service.impl;
 
 import it.sportandreview.dto.request.AuthenticationRequestDTO;
+import it.sportandreview.dto.request.UserRegistrationRequestDTO;
 import it.sportandreview.dto.response.AuthenticationResponseDTO;
 import it.sportandreview.enums.Role;
 import it.sportandreview.exception.BadCredentialsException;
 import it.sportandreview.exception.TokenNotValidException;
 import it.sportandreview.exception.UserAlreadyExistException;
 import it.sportandreview.exception.UserNotFoundException;
+import it.sportandreview.mapper.UserMapper;
 import it.sportandreview.service.AuthenticationService;
-import it.sportandreview.user.*;
+import it.sportandreview.user.User;
+import it.sportandreview.user.UserRepository;
+import it.sportandreview.user.UserService;
 import it.sportandreview.util.JwtTokenUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,6 +20,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -30,18 +35,24 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final UserRepository userRepository;
     private final UserDetailsService userDetailsService;
     private final AuthenticationManager authenticationManager;
+    private final PasswordEncoder passwordEncoder;
+    private final UserMapper userMapper;
 
     private static final long TOKEN_EXPIRATION_TIME = 1000 * 60 * 60;
     private static final long REFRESH_TOKEN_EXPIRATION_TIME = 1000 * 60 * 70;
 
     @Override
-    public void register(UserDTO userDto, Role role) {
-        log.info("Registering user with email: {}", userDto.getEmail());
-        if (userService.findByEmail(userDto.getEmail()).isPresent()) {
+    public void register(UserRegistrationRequestDTO userRegistrationRequestDTO) {
+        log.info("Registering user with email: {}", userRegistrationRequestDTO.getEmail());
+        if (userService.findByEmail(userRegistrationRequestDTO.getEmail()).isPresent()) {
             throw new UserAlreadyExistException();
         }
-        userDto.setRole(role);
-        userService.create(userDto);
+
+        User user = userMapper.toEntity(userRegistrationRequestDTO);
+        user.setRole(Role.USER);
+        user.setPassword(passwordEncoder.encode(userRegistrationRequestDTO.getPassword()));
+
+        userRepository.save(user);
     }
 
     @Override
