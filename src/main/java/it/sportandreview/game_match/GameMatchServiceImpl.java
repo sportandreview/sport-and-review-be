@@ -230,12 +230,11 @@ public class GameMatchServiceImpl implements GameMatchService {
         Specification<GameMatch> filterByDateSpecification = Objects.nonNull(date) ? GameMatchSpecifications.filterByDate(date) : GameMatchSpecifications.NULL_SPECIFICATION;
         Specification<GameMatch> filterByTimeSpecification = Objects.nonNull(time) ? GameMatchSpecifications.filterByTime(time) : GameMatchSpecifications.NULL_SPECIFICATION;
         Specification<GameMatch> filterBySportIdSpecification = Objects.nonNull(sportId) ? GameMatchSpecifications.filterBySportId(sportId) : GameMatchSpecifications.NULL_SPECIFICATION;
-        Specification<GameMatch> filterByGenderTypeId = Objects.nonNull(genderTeamId) ? GameMatchSpecifications.filterByGenderTypeId(genderTeamId) : GameMatchSpecifications.NULL_SPECIFICATION;
         Specification<GameMatch> filterByGameLevelId = Objects.nonNull(gameLevelId) ? GameMatchSpecifications.filterByGameLevelId(gameLevelId) : GameMatchSpecifications.NULL_SPECIFICATION;
         Specification<GameMatch> withMissingPlayers = GameMatchSpecifications.withMissingPlayers();
         Specification<GameMatch> withStateId = GameMatchSpecifications.withStateId(MatchStateEnum.CREATED.getId());
         Specification<GameMatch> finalSpec = Specification.where(clubCitySpecification).and(clubNameSpecification)
-                .and(filterByDateSpecification).and(filterByTimeSpecification).and(filterBySportIdSpecification).and(filterByGenderTypeId)
+                .and(filterByDateSpecification).and(filterByTimeSpecification).and(filterBySportIdSpecification)
                 .and(withMissingPlayers).and(withStateId).and(filterByGameLevelId);
         List<GameMatch> gameMatches = gameMatchRepository.findAll(finalSpec);
         return gameMatches;

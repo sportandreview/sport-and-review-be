@@ -2,9 +2,9 @@ package it.sportandreview.game_match;
 
 import it.sportandreview.base.BaseDTO;
 import it.sportandreview.booked_slot.BookedSlotDTO;
+import it.sportandreview.enums.GenderType;
 import it.sportandreview.field.FieldDTO;
 import it.sportandreview.game_level.GameLevelDTO;
-import it.sportandreview.gender_type.GenderTypeDTO;
 import it.sportandreview.match_state.MatchStateDTO;
 import it.sportandreview.payment.PaymentDTO;
 import it.sportandreview.player_user.PlayerUserDTO;
@@ -34,7 +34,7 @@ public class GameMatchDTO extends BaseDTO {
     @NotNull(message = "il campo è obbligatorio!")
     private FieldDTO field;
     @NotNull(message = "il genere del team è obbligatorio!")
-    private GenderTypeDTO genderTeam;
+    private GenderType genderTeam;
     @NotNull(message = "lo stato della partita è obbligatorio!")
     private MatchStateDTO state;
     @NotNull(message = "il livello di gioco è obbligatorio!")

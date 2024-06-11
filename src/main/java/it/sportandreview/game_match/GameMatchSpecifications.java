@@ -8,8 +8,6 @@ import it.sportandreview.field.Field;
 import it.sportandreview.field.Field_;
 import it.sportandreview.game_level.GameLevel;
 import it.sportandreview.game_level.GameLevel_;
-import it.sportandreview.gender_type.GenderType;
-import it.sportandreview.gender_type.GenderType_;
 import it.sportandreview.slot.Slot;
 import it.sportandreview.slot.Slot_;
 import it.sportandreview.sport.Sport;
@@ -76,15 +74,6 @@ public class GameMatchSpecifications {
             query.distinct(true);
 
             return sportPredicate;
-        };
-    }
-    public static Specification<GameMatch> filterByGenderTypeId(Long genderTeamId) {
-        return (root, query, criteriaBuilder) -> {
-            Join<GameMatch, GenderType> genderTypeJoin = root.join(GameMatch_.GENDER_TEAM, JoinType.LEFT);
-            Predicate genderTeamPredicate = criteriaBuilder.equal(genderTypeJoin.get(GenderType_.ID), genderTeamId);
-            query.distinct(true);
-
-            return genderTeamPredicate;
         };
     }
     public static Specification<GameMatch> filterByGameLevelId(Long gameLevelId) {

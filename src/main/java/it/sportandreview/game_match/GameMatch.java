@@ -2,9 +2,9 @@ package it.sportandreview.game_match;
 
 import it.sportandreview.base.IndexedEntity;
 import it.sportandreview.booked_slot.BookedSlot;
+import it.sportandreview.enums.GenderType;
 import it.sportandreview.field.Field;
 import it.sportandreview.game_level.GameLevel;
-import it.sportandreview.gender_type.GenderType;
 import it.sportandreview.match_state.MatchState;
 import it.sportandreview.payment.Payment;
 import it.sportandreview.services.Services;
@@ -47,10 +47,9 @@ public class GameMatch extends IndexedEntity {
     @ToString.Exclude
     private Field field;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "gender_team_id", referencedColumnName = "id")
-    @ToString.Exclude
-    private GenderType genderTeam;
+    @Enumerated(EnumType.STRING)
+    private GenderType genderType;
+
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "state_id", referencedColumnName = "id")

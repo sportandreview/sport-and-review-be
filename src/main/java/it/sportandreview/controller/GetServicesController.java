@@ -7,7 +7,6 @@ import it.sportandreview.club.ClubDTO;
 import it.sportandreview.club.ClubService;
 import it.sportandreview.club.PagingClubDTO;
 import it.sportandreview.dto.response.ApiResponseDTO;
-import it.sportandreview.dto.response.AuthenticationResponseDTO;
 import it.sportandreview.field.FieldDTO;
 import it.sportandreview.field.FieldService;
 import it.sportandreview.field.PagingFieldDTO;
@@ -16,8 +15,6 @@ import it.sportandreview.game_level.GameLevelService;
 import it.sportandreview.game_match.GameMatchDTO;
 import it.sportandreview.game_match.GameMatchService;
 import it.sportandreview.game_match.PagingGameMatchDTO;
-import it.sportandreview.gender_type.GenderTypeDTO;
-import it.sportandreview.gender_type.GenderTypeService;
 import it.sportandreview.highlight.HighlightDTO;
 import it.sportandreview.highlight.HighlightService;
 import it.sportandreview.match_state.MatchState;
@@ -52,13 +49,11 @@ public class GetServicesController {
     private final ClubService clubService;
     private final MatchStateService matchStateService;
     private final GameLevelService gameLevelService;
-    private final GenderTypeService genderTypeService;
     private final FieldService fieldService;
 
     public GetServicesController(SportService sportService, SportPointService sportPointService, ServicesService servicesService,
                                  HighlightService highlightService, GameMatchService gameMatchservice, FieldService fieldservice,
-                                 ClubService clubService, MatchStateService matchStateService, GameLevelService gameLevelService,
-                                 GenderTypeService genderTypeService, FieldService fieldService) {
+                                 ClubService clubService, MatchStateService matchStateService, GameLevelService gameLevelService, FieldService fieldService) {
         this.sportService = sportService;
         this.sportPointService = sportPointService;
         this.servicesService = servicesService;
@@ -68,7 +63,6 @@ public class GetServicesController {
         this.clubService = clubService;
         this.matchStateService = matchStateService;
         this.gameLevelService = gameLevelService;
-        this.genderTypeService = genderTypeService;
         this.fieldService = fieldService;
     }
 
@@ -244,17 +238,6 @@ public class GetServicesController {
         return ResponseEntity.ok(response);
     }
 
-    @Operation(summary = "Find all gender types")
-    @GetMapping("/genderTypes")
-    public ResponseEntity<ApiResponseDTO<List<GenderTypeDTO>>> findAllGenderTypes() {
-        ApiResponseDTO<List<GenderTypeDTO>> response = ApiResponseDTO.<List<GenderTypeDTO>>builder()
-                .status(HttpServletResponse.SC_OK)
-                .message("Lista di gendet type")
-                .result(genderTypeService.findAll())
-                .build();
-        return ResponseEntity.ok(response);
-    }
-
     @GetMapping("/gameMatches/{gameMatchId}")
     @Operation(summary = "Find game match by id")
     public ResponseEntity<ApiResponseDTO<GameMatchDTO>> findGameMatchById(@PathVariable Long gameMatchId) {
@@ -265,6 +248,7 @@ public class GetServicesController {
                 .build();
         return ResponseEntity.ok(response);
     }
+
     @GetMapping("/fields/{pageSize}/{pageNumber}")
     @Operation(summary = "Find all fields with page")
     public ResponseEntity<ApiResponseDTO<PagingFieldDTO>> findAllFields(@PathVariable Integer pageSize, @PathVariable Integer pageNumber) {

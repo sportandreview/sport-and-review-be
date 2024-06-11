@@ -3,6 +3,7 @@ package it.sportandreview.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import it.sportandreview.admin_user.AdminUserDTO;
 import it.sportandreview.dto.request.AuthenticationRequestDTO;
+import it.sportandreview.dto.request.UserRegistrationRequestDTO;
 import it.sportandreview.dto.response.AuthenticationResponseDTO;
 import it.sportandreview.service.AuthenticationService;
 import it.sportandreview.dto.response.ApiResponseDTO;
@@ -31,14 +32,17 @@ public class AuthenticationController {
 
     @PostMapping("/register/player")
     @Operation(summary = "Registra un nuovo utente player")
-    public ResponseEntity<ApiResponseDTO<AuthenticationResponseDTO>> registerPlayer(@Valid @RequestBody PlayerUserDTO playerUserDTO) {
-        authenticationService.register(playerUserDTO, Role.USER);
-        String emailOtp = otpService.generateOtp(playerUserDTO.getEmail());
-        otpService.sendOtpEmail(playerUserDTO.getEmail(), emailOtp);
-        if (playerUserDTO.getMobilePhone() != null && !playerUserDTO.getMobilePhone().isEmpty()) {
-            String phoneOtp = otpService.generateOtp(playerUserDTO.getMobilePhone());
-            otpService.sendOtpSms(playerUserDTO.getMobilePhone(), phoneOtp);
+    public ResponseEntity<ApiResponseDTO<AuthenticationResponseDTO>> registerPlayer(@Valid @RequestBody UserRegistrationRequestDTO userRegistrationRequestDTO) {
+        authenticationService.register(userRegistrationRequestDTO);
+
+        String emailOtp = otpService.generateOtp(userRegistrationRequestDTO.getEmail());
+        otpService.sendOtpEmail(userRegistrationRequestDTO.getEmail(), emailOtp);
+
+        if (userRegistrationRequestDTO.getMobilePhone() != null && !userRegistrationRequestDTO.getMobilePhone().isEmpty()) {
+            String phoneOtp = otpService.generateOtp(userRegistrationRequestDTO.getMobilePhone());
+            otpService.sendOtpSms(userRegistrationRequestDTO.getMobilePhone(), phoneOtp);
         }
+
         String message = messageSource.getMessage("user.register.success", null, LocaleContextHolder.getLocale());
         return ResponseEntity.ok(new ApiResponseDTO<>(HttpServletResponse.SC_OK, message));
     }
@@ -46,7 +50,7 @@ public class AuthenticationController {
     @PostMapping("/register/admin")
     @Operation(summary = "Registra un nuovo utente admin")
     public ResponseEntity<ApiResponseDTO<AuthenticationResponseDTO>> registerAdmin(@Valid @RequestBody AdminUserDTO adminUserDTO) throws UserAlreadyExistException {
-        authenticationService.register(adminUserDTO, Role.ADMIN);
+        authenticationService.register(null);
         ApiResponseDTO<AuthenticationResponseDTO> response = ApiResponseDTO.<AuthenticationResponseDTO>builder()
                 .status(HttpServletResponse.SC_OK)
                 .message("Admin registrato con successo")

@@ -18,13 +18,13 @@ import java.util.Optional;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
-    private final UserMapper userMapper;
+    private final UserMapperOld userMapperOld;
     private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    public UserServiceImpl(UserRepository userRepository, UserMapper userMapper, @Lazy PasswordEncoder passwordEncoder) {
+    public UserServiceImpl(UserRepository userRepository, UserMapperOld userMapperOld, @Lazy PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
-        this.userMapper = userMapper;
+        this.userMapperOld = userMapperOld;
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -36,7 +36,7 @@ public class UserServiceImpl implements UserService {
         // Setting User UUID
         String uuid = StringUtils.isBlank(userDto.getUuid()) ? Sha256Utils.getEncodedRandomUUID() : userDto.getUuid();
         userDto.setUuid(uuid);
-        User user = userMapper.toEntity(userDto);
+        User user = userMapperOld.toEntity(userDto);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         User saved = userRepository.save(user);
         log.debug("User created");
@@ -48,7 +48,7 @@ public class UserServiceImpl implements UserService {
         if (Objects.isNull(userDto.getId()) || !userRepository.existsById(userDto.getId())) {
             throw new NotFoundException("user", "PlayerUser" + " not found");
         }
-        User saved = userRepository.save(userMapper.toEntity(userDto));
+        User saved = userRepository.save(userMapperOld.toEntity(userDto));
         log.debug("user updated");
         return saved;
     }
@@ -70,7 +70,7 @@ public class UserServiceImpl implements UserService {
                 orElseThrow(() -> new NotFoundException("user", "User" + "not exists into database"));
         user.setPassword(passwordEncoder.encode(request.getNewPassword()));
         User user1 = userRepository.save(user);
-        return userMapper.toDto(user1);
+        return userMapperOld.toDto(user1);
     }
 
     @Override
