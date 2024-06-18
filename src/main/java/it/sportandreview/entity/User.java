@@ -1,17 +1,19 @@
 package it.sportandreview.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import it.sportandreview.enums.GenderType;
 import it.sportandreview.enums.PhysicalStructure;
 import it.sportandreview.enums.RoleType;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.ZonedDateTime;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -25,6 +27,10 @@ public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "role", nullable = false)
+    private RoleType roleType;
 
     @Column(name = "nickname", nullable = false, unique = true)
     private String nickname;
@@ -51,9 +57,11 @@ public class User implements UserDetails {
     @Column(name = "mobile_phone", nullable = false)
     private String mobilePhone;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "role", nullable = false)
-    private RoleType roleType;
+    @Column(name = "mobile_phone_check")
+    private boolean mobilePhoneCheck;
+
+    @Column(name = "email_check")
+    private boolean emailCheck;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "physical_structure")
@@ -65,6 +73,12 @@ public class User implements UserDetails {
     @Column(name = "height")
     private Double height;
 
+    @Column(name = "ranking")
+    private Integer ranking;
+
+    @Column(name = "reliability")
+    private Integer reliability;
+
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "user_sport",
@@ -72,17 +86,11 @@ public class User implements UserDetails {
             inverseJoinColumns = @JoinColumn(name = "sport_id")
     )
     @JsonManagedReference
-    private Set<Sport> sports = new HashSet<>();
+    private Set<Sport> sportSet;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonManagedReference
-    private Set<UserEvaluation> evaluations = new HashSet<>();
-
-    @Column(name = "mobile_phone_check")
-    private boolean mobilePhoneCheck;
-
-    @Column(name = "email_check")
-    private boolean emailCheck;
+    private Set<SportAssessment> sportAssessmentSet;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

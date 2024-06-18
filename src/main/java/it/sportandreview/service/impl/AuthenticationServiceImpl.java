@@ -43,6 +43,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     private static final long TOKEN_EXPIRATION_TIME = 1000 * 60 * 60;
     private static final long REFRESH_TOKEN_EXPIRATION_TIME = 1000 * 60 * 70;
+    private static final Integer STANDARD_RANKING = 50;
+    private static final Integer STANDARD_RELIABILITY = 100;
 
     @Override
     public void register(UserRequestDTO userRequestDTO) {
@@ -55,6 +57,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         }
 
         User user = userMapper.toEntity(userRequestDTO);
+        user.setRanking(STANDARD_RANKING);
+        user.setReliability(STANDARD_RELIABILITY);
         user.setRoleType(RoleType.ROLE_USER);
         user.setPassword(passwordEncoder.encode(userRequestDTO.getPassword()));
 

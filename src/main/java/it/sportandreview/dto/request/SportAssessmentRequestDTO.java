@@ -1,10 +1,12 @@
 package it.sportandreview.dto.request;
 
+import it.sportandreview.enums.SkillLevel;
+import it.sportandreview.enums.TrainingFrequency;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 @Data
-public class UserEvaluationRequestDTO {
+public class SportAssessmentRequestDTO {
     @NotNull
     private Long sportId;
 
@@ -12,8 +14,8 @@ public class UserEvaluationRequestDTO {
     private Boolean playedCompetitively;
 
     @NotNull
-    private String trainingFrequency;
+    private TrainingFrequency trainingFrequency;
 
     @NotNull
-    private String skillLevel;
+    private SkillLevel skillLevel;
 }

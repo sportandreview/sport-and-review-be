@@ -17,7 +17,7 @@ public interface UserMapper {
     @Mapping(source = "genderType", target = "genderType", qualifiedByName = "stringToGenderType")
     User toEntity(UserRequestDTO dto);
 
-    @Mapping(target = "sports", source = "sports")
+    //@Mapping(target = "sports", source = "sportSet")
     UserResponseDTO toDto(User user);
 
     @Named("stringToGenderType")

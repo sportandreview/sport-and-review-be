@@ -1,6 +1,7 @@
 package it.sportandreview.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import it.sportandreview.enums.SportType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -17,6 +18,7 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Sport {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -29,20 +31,20 @@ public class Sport {
     @Column(name = "sport_type", nullable = false, unique = true)
     private SportType sportType;
 
-    @Transient
-    public String getSportDescription() {
-        return sportType.getDescription();
-    }
-
-    @ManyToMany(mappedBy = "sports")
+    @ManyToMany(mappedBy = "sportSet")
     @JsonBackReference
     private Set<User> users = new HashSet<>();
 
-    @OneToMany(mappedBy = "sport", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<UserEvaluation> evaluations = new HashSet<>();
+    @OneToMany(mappedBy = "sport", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Set<SportAssessment> sportAssessmentSet;
 
     public Sport(Integer maxPlayers, SportType sportType) {
         this.maxPlayers = maxPlayers;
         this.sportType = sportType;
+    }
+
+    @Transient
+    public String getSportDescription() {
+        return sportType.getDescription();
     }
 }
