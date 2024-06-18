@@ -1,8 +1,10 @@
 package it.sportandreview.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import it.sportandreview.dto.response.ApiResponseDTO;
-import it.sportandreview.service.OtpService;
+import it.sportandreview.util.OtpUtil;
 import it.sportandreview.service.AuthenticationService;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -16,27 +18,34 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/otp")
 public class OtpController {
 
-    private final OtpService otpService;
+    private final OtpUtil otpUtil;
     private final AuthenticationService authenticationService;
     private final MessageSource messageSource;
 
+    @Operation(summary = "Send OTP to email or phone")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "OTP sent successfully")
+    })
     @PostMapping("/send")
-    @Operation(summary = "Invia OTP a email o cellulare")
     public ResponseEntity<ApiResponseDTO<String>> sendOtp(@RequestParam String key) {
-        String otp = otpService.generateOtp(key);
+        String otp = otpUtil.generateOtp(key);
         if (key.contains("@")) {
-            otpService.sendOtpEmail(key, otp);
+            otpUtil.sendOtpEmail(key, otp);
         } else {
-            otpService.sendOtpSms(key, otp);
+            otpUtil.sendOtpSms(key, otp);
         }
         String message = messageSource.getMessage("otp.sent", null, LocaleContextHolder.getLocale());
         return ResponseEntity.ok(new ApiResponseDTO<>(HttpServletResponse.SC_OK, message));
     }
 
+    @Operation(summary = "Verify OTP")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "OTP verified successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid OTP")
+    })
     @PostMapping("/verify")
-    @Operation(summary = "Verifica OTP")
     public ResponseEntity<ApiResponseDTO<String>> verifyOtp(@RequestParam String key, @RequestParam String otp) {
-        boolean isValid = otpService.validateOtp(key, otp);
+        boolean isValid = otpUtil.validateOtp(key, otp);
         if (isValid) {
             authenticationService.updateVerificationStatus(key, true);
             String message = messageSource.getMessage("otp.verified", null, LocaleContextHolder.getLocale());

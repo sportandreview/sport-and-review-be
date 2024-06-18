@@ -1,5 +1,8 @@
 package it.sportandreview.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import it.sportandreview.dto.response.ApiResponseDTO;
 import it.sportandreview.enums.GenderType;
 import jakarta.servlet.http.HttpServletResponse;
@@ -17,6 +20,10 @@ import java.util.stream.Collectors;
 @RequestMapping("/gender-types")
 public class GenderTypeController {
 
+    @Operation(summary = "Get all gender types")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Gender types retrieved successfully")
+    })
     @GetMapping
     public ApiResponseDTO<List<GenderTypeResponse>> getGenderTypes() {
         List<GenderTypeResponse> genderTypes = Arrays.stream(GenderType.values())
@@ -29,6 +36,6 @@ public class GenderTypeController {
     @AllArgsConstructor
     static class GenderTypeResponse {
         private String value;
-        private String label;
+        private String description;
     }
 }

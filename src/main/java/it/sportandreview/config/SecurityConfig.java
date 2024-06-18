@@ -27,8 +27,18 @@ import java.util.Arrays;
 public class SecurityConfig {
 
     private static final String[] WHITE_LIST_URL = {
-            "/auth/**", "/getServices/**", "/otp/**", "/gender-types"
+            "/auth/**",
+            "/getServices/**",
+            "/otp/**",
+            "/gender-types",
+            "/swagger-ui/**",
+            "/v2/api-docs/**",
+            "/v3/api-docs/**",
+            "/swagger-resources/**",
+            "/webjars/**",
+            "/swagger-ui.html"
     };
+
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
     private final JwtRequestFilter jwtRequestFilter;
 

@@ -1,21 +1,23 @@
 package it.sportandreview.service.impl;
 
 import it.sportandreview.dto.request.AuthenticationRequestDTO;
-import it.sportandreview.dto.request.UserRegistrationRequestDTO;
+import it.sportandreview.dto.request.UserRequestDTO;
 import it.sportandreview.dto.response.AuthenticationResponseDTO;
-import it.sportandreview.enums.Role;
+import it.sportandreview.enums.RoleType;
 import it.sportandreview.exception.BadCredentialsException;
 import it.sportandreview.exception.TokenNotValidException;
 import it.sportandreview.exception.UserAlreadyExistException;
 import it.sportandreview.exception.UserNotFoundException;
 import it.sportandreview.mapper.UserMapper;
+import it.sportandreview.repository.UserRepository;
 import it.sportandreview.service.AuthenticationService;
-import it.sportandreview.user.User;
-import it.sportandreview.user.UserRepository;
-import it.sportandreview.user.UserService;
+import it.sportandreview.entity.User;
+import it.sportandreview.service.UserService;
 import it.sportandreview.util.JwtTokenUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -37,20 +39,24 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final AuthenticationManager authenticationManager;
     private final PasswordEncoder passwordEncoder;
     private final UserMapper userMapper;
+    private final MessageSource messageSource;
 
     private static final long TOKEN_EXPIRATION_TIME = 1000 * 60 * 60;
     private static final long REFRESH_TOKEN_EXPIRATION_TIME = 1000 * 60 * 70;
 
     @Override
-    public void register(UserRegistrationRequestDTO userRegistrationRequestDTO) {
-        log.info("Registering user with email: {}", userRegistrationRequestDTO.getEmail());
-        if (userService.findByEmail(userRegistrationRequestDTO.getEmail()).isPresent()) {
-            throw new UserAlreadyExistException();
+    public void register(UserRequestDTO userRequestDTO) {
+        log.info("Registering user with email: {}", userRequestDTO.getEmail());
+        if (userService.findByEmail(userRequestDTO.getEmail()).isPresent()) {
+            throw new UserAlreadyExistException(messageSource.getMessage("user.mail.already.exists", null, LocaleContextHolder.getLocale()));
+        }
+        if (userService.findByNickname(userRequestDTO.getNickname()).isPresent()) {
+            throw new UserAlreadyExistException(messageSource.getMessage("user.nickname.already.exists", null, LocaleContextHolder.getLocale()));
         }
 
-        User user = userMapper.toEntity(userRegistrationRequestDTO);
-        user.setRole(Role.USER);
-        user.setPassword(passwordEncoder.encode(userRegistrationRequestDTO.getPassword()));
+        User user = userMapper.toEntity(userRequestDTO);
+        user.setRoleType(RoleType.ROLE_USER);
+        user.setPassword(passwordEncoder.encode(userRequestDTO.getPassword()));
 
         userRepository.save(user);
     }
@@ -60,7 +66,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         try {
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
         }catch (org.springframework.security.authentication.BadCredentialsException e) {
-            throw new BadCredentialsException("Email o password non corretta");
+            throw new BadCredentialsException(messageSource.getMessage("user.authenticate.failure", null, LocaleContextHolder.getLocale()));
         }
         User user = userService.findByEmail(request.getEmail()).orElseThrow(() -> new UserNotFoundException());
         return generateTokens(user);
@@ -89,7 +95,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     }
 
     public void updateVerificationStatus(String key, boolean verified) {
-        Optional<User> userOpt = userRepository.findByEmailOrPhone(key, key);
+        Optional<User> userOpt = userRepository.findByEmailOrMobilePhone(key, key);
         if (userOpt.isPresent()) {
             User user = userOpt.get();
             if (key.contains("@")) {

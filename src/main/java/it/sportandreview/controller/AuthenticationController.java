@@ -1,18 +1,16 @@
 package it.sportandreview.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
-import it.sportandreview.admin_user.AdminUserDTO;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import it.sportandreview.dto.request.AuthenticationRequestDTO;
-import it.sportandreview.dto.request.UserRegistrationRequestDTO;
+import it.sportandreview.dto.request.UserRequestDTO;
 import it.sportandreview.dto.response.AuthenticationResponseDTO;
 import it.sportandreview.service.AuthenticationService;
 import it.sportandreview.dto.response.ApiResponseDTO;
 import it.sportandreview.exception.TokenNotValidException;
-import it.sportandreview.exception.UserAlreadyExistException;
 import it.sportandreview.exception.UserNotFoundException;
-import it.sportandreview.player_user.PlayerUserDTO;
-import it.sportandreview.service.OtpService;
-import it.sportandreview.enums.Role;
+import it.sportandreview.util.OtpUtil;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -27,58 +25,63 @@ import org.springframework.web.bind.annotation.*;
 public class AuthenticationController {
 
     private final AuthenticationService authenticationService;
-    private final OtpService otpService;
+    private final OtpUtil otpUtil;
     private final MessageSource messageSource;
 
     @PostMapping("/register/player")
     @Operation(summary = "Registra un nuovo utente player")
-    public ResponseEntity<ApiResponseDTO<AuthenticationResponseDTO>> registerPlayer(@Valid @RequestBody UserRegistrationRequestDTO userRegistrationRequestDTO) {
-        authenticationService.register(userRegistrationRequestDTO);
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Utente registrato con successo"),
+            @ApiResponse(responseCode = "400", description = "Richiesta non valida")
+    })
+    public ResponseEntity<ApiResponseDTO<AuthenticationResponseDTO>> registerPlayer(@Valid @RequestBody UserRequestDTO userRequestDTO) {
+        authenticationService.register(userRequestDTO);
 
-        String emailOtp = otpService.generateOtp(userRegistrationRequestDTO.getEmail());
-        otpService.sendOtpEmail(userRegistrationRequestDTO.getEmail(), emailOtp);
+        String emailOtp = otpUtil.generateOtp(userRequestDTO.getEmail());
+        otpUtil.sendOtpEmail(userRequestDTO.getEmail(), emailOtp);
 
-        if (userRegistrationRequestDTO.getMobilePhone() != null && !userRegistrationRequestDTO.getMobilePhone().isEmpty()) {
-            String phoneOtp = otpService.generateOtp(userRegistrationRequestDTO.getMobilePhone());
-            otpService.sendOtpSms(userRegistrationRequestDTO.getMobilePhone(), phoneOtp);
+        if (userRequestDTO.getMobilePhone() != null && !userRequestDTO.getMobilePhone().isEmpty()) {
+            String phoneOtp = otpUtil.generateOtp(userRequestDTO.getMobilePhone());
+            otpUtil.sendOtpSms(userRequestDTO.getMobilePhone(), phoneOtp);
         }
 
         String message = messageSource.getMessage("user.register.success", null, LocaleContextHolder.getLocale());
         return ResponseEntity.ok(new ApiResponseDTO<>(HttpServletResponse.SC_OK, message));
     }
 
-    @PostMapping("/register/admin")
-    @Operation(summary = "Registra un nuovo utente admin")
-    public ResponseEntity<ApiResponseDTO<AuthenticationResponseDTO>> registerAdmin(@Valid @RequestBody AdminUserDTO adminUserDTO) throws UserAlreadyExistException {
-        authenticationService.register(null);
-        ApiResponseDTO<AuthenticationResponseDTO> response = ApiResponseDTO.<AuthenticationResponseDTO>builder()
-                .status(HttpServletResponse.SC_OK)
-                .message("Admin registrato con successo")
-                .result(null)
-                .build();
-        return ResponseEntity.ok(response);
-    }
-
     @PostMapping("/authenticate")
     @Operation(summary = "Autentica un utente")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Autenticazione avvenuta con successo"),
+            @ApiResponse(responseCode = "412", description = "Verifica email necessaria"),
+            @ApiResponse(responseCode = "404", description = "Utente non trovato"),
+            @ApiResponse(responseCode = "401", description = "Credenziali non valide")
+    })
     public ResponseEntity<ApiResponseDTO<AuthenticationResponseDTO>> authenticate(@Valid @RequestBody AuthenticationRequestDTO request) throws UserNotFoundException {
         AuthenticationResponseDTO response = authenticationService.authenticate(request);
+        String message = null;
         if (!response.isEmailCheck()) {
-            String emailOtp = otpService.generateOtp(request.getEmail());
-            otpService.sendOtpEmail(request.getEmail(), emailOtp);
-            String message = messageSource.getMessage("user.verify.email", null, LocaleContextHolder.getLocale());
+            String emailOtp = otpUtil.generateOtp(request.getEmail());
+            otpUtil.sendOtpEmail(request.getEmail(), emailOtp);
+            message = messageSource.getMessage("user.verify.email", null, LocaleContextHolder.getLocale());
             return ResponseEntity.status(HttpServletResponse.SC_PRECONDITION_FAILED)
                     .body(new ApiResponseDTO<>(HttpServletResponse.SC_PRECONDITION_FAILED, message));
         }
-        return ResponseEntity.ok(new ApiResponseDTO<>(HttpServletResponse.SC_OK, "Utente autenticato con successo", response));
+        message = messageSource.getMessage("user.authenticate.success", null, LocaleContextHolder.getLocale());
+        return ResponseEntity.ok(new ApiResponseDTO<>(HttpServletResponse.SC_OK, message, response));
     }
 
     @PutMapping("/refresh")
     @Operation(summary = "Aggiorna il token dell'utente")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Token aggiornato con successo"),
+            @ApiResponse(responseCode = "404", description = "Utente non trovato"),
+            @ApiResponse(responseCode = "401", description = "Token non valido")
+    })
     public ResponseEntity<ApiResponseDTO<AuthenticationResponseDTO>> refreshToken(@Valid @RequestBody AuthenticationRequestDTO request) throws UserNotFoundException, TokenNotValidException {
         ApiResponseDTO<AuthenticationResponseDTO> response = ApiResponseDTO.<AuthenticationResponseDTO>builder()
                 .status(HttpServletResponse.SC_OK)
-                .message("Token aggiornato con successo")
+                .message(null)
                 .result(authenticationService.refreshToken(request))
                 .build();
         return ResponseEntity.ok(response);

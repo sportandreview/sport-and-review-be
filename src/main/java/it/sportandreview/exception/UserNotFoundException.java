@@ -2,6 +2,14 @@ package it.sportandreview.exception;
 
 public class UserNotFoundException extends RuntimeException {
     public UserNotFoundException() {
-        super("User not found");
+        super();
+    }
+
+    public UserNotFoundException(Long id) {
+        super("User not found with id: " + id);
+    }
+
+    public UserNotFoundException(String message) {
+        super(message);
     }
 }

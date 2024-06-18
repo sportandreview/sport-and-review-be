@@ -73,27 +73,6 @@ spring:
   messages:
     basename: label
 
-springdoc:
-  api-docs:
-    enabled: true
-    path: /api-docs
-  swagger-ui:
-    path: /swagger-ui.html
-    enabled: true
-
-eureka:
-  client:
-    register-with-eureka: false
-    fetch-registry: false
-    service-url:
-      defaultZone: http://localhost:8761/eureka/
-
-docker:
-  smtp:
-    server: smtp.office365.com
-    username: ${SMTP_USERNAME:sportandreview@outlook.it}
-    pw: ${SMTP_PASSWORD}
-
 SportAndReview:
   password-url: https://www.esempio.com/pagina
 

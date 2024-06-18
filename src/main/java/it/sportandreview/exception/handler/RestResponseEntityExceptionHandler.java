@@ -13,12 +13,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
@@ -43,19 +43,16 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 
-    @ResponseStatus(HttpStatus.CONFLICT)
     @ExceptionHandler(UserAlreadyExistException.class)
     public ResponseEntity<ApiResponseDTO> handleUserAlreadyExistException(UserAlreadyExistException ex, WebRequest request) {
-        String message = messageSource.getMessage("user.already.exists", null, LocaleContextHolder.getLocale());
-        log.error("handleUserAlreadyExistException: {}", message, ex);
+        log.error("handleUserAlreadyExistException: {}", ex.getMessage(), ex);
         var error = ApiResponseDTO.builder()
                 .status(HttpServletResponse.SC_CONFLICT)
-                .message(message)
+                .message(ex.getMessage())
                 .build();
         return new ResponseEntity<>(error, HttpStatus.CONFLICT);
     }
 
-    @ResponseStatus(HttpStatus.NOT_FOUND)
     @ExceptionHandler(UserNotFoundException.class)
     public ResponseEntity<ApiResponseDTO> handleUserNotFoundException(UserNotFoundException ex, WebRequest request) {
         String message = messageSource.getMessage("user.not.found", null, LocaleContextHolder.getLocale());
@@ -67,7 +64,6 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
         return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
     }
 
-    @ResponseStatus(HttpStatus.UNAUTHORIZED)
     @ExceptionHandler(UnauthorizedException.class)
     public ResponseEntity<ApiResponseDTO> handleUnauthorizedException(UnauthorizedException ex, WebRequest request) {
         String message = messageSource.getMessage("user.unauthorized", null, LocaleContextHolder.getLocale());
@@ -79,16 +75,36 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
         return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
     }
 
-    @ResponseStatus(HttpStatus.UNAUTHORIZED)
     @ExceptionHandler(BadCredentialsException.class)
     public ResponseEntity<ApiResponseDTO> handleBadCredentialsException(BadCredentialsException ex, WebRequest request) {
-        String message = messageSource.getMessage("user.authenticate.failure", null, LocaleContextHolder.getLocale());
-        log.error("handleBadCredentialsException: {}", message, ex);
+        log.error("handleBadCredentialsException: {}", ex.getMessage(), ex);
         var error = ApiResponseDTO.builder()
                 .status(HttpServletResponse.SC_UNAUTHORIZED)
-                .message(message)
+                .message(ex.getMessage())
                 .build();
         return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
+    }
+
+    @ExceptionHandler(SportNotFoundException.class)
+    public ResponseEntity<ApiResponseDTO> handleSportNotFoundException(SportNotFoundException ex, WebRequest request) {
+        String message = messageSource.getMessage("sport.not.found", null, LocaleContextHolder.getLocale());
+        log.error("handleSportNotFoundException: {}", message, ex);
+        var error = ApiResponseDTO.builder()
+                .status(HttpServletResponse.SC_NOT_FOUND)
+                .message(message)
+                .build();
+        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ApiResponseDTO> handleAccessDeniedException(AccessDeniedException ex, WebRequest request) {
+        String message = messageSource.getMessage("access.denied", null, LocaleContextHolder.getLocale());
+        log.error("handleAccessDeniedException: {}", message, ex);
+        var error = ApiResponseDTO.builder()
+                .status(HttpServletResponse.SC_FORBIDDEN)
+                .message(message)
+                .build();
+        return new ResponseEntity<>(error, HttpStatus.FORBIDDEN);
     }
 
     @Override
