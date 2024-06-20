@@ -15,10 +15,4 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByEmailOrMobilePhone(String email, String mobilePhone);
     boolean existsByEmail(String email);
     boolean existsByNickname(String nickname);
-
-    @Query("SELECT u FROM User u " +
-            "LEFT JOIN FETCH u.sportAssessmentSet sa " +
-            "LEFT JOIN FETCH sa.sport s " +
-            "WHERE u.id = :userId")
-    Optional<User> findByIdWithSportAssessments(@Param("userId") Long userId);
 }
