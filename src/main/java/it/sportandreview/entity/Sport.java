@@ -31,6 +31,10 @@ public class Sport {
     @Column(name = "sport_type", nullable = false, unique = true)
     private SportType sportType;
 
+    @OneToMany(mappedBy = "sport", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonBackReference
+    private Set<Playground> playgrounds;
+
     @ManyToMany(mappedBy = "sportSet")
     @JsonBackReference
     private Set<User> users = new HashSet<>();
