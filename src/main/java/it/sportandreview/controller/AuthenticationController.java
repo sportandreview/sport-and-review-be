@@ -28,14 +28,14 @@ public class AuthenticationController {
     private final OtpUtil otpUtil;
     private final MessageSource messageSource;
 
-    @PostMapping("/register/player")
-    @Operation(summary = "Registra un nuovo utente player")
+    @PostMapping("/register")
+    @Operation(summary = "Registra un nuovo utente")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Utente registrato con successo"),
             @ApiResponse(responseCode = "400", description = "Richiesta non valida")
     })
-    public ResponseEntity<ApiResponseDTO<AuthenticationResponseDTO>> registerPlayer(@Valid @RequestBody UserRequestDTO userRequestDTO) {
-        authenticationService.register(userRequestDTO);
+    public ResponseEntity<ApiResponseDTO<AuthenticationResponseDTO>> register(@Valid @RequestBody UserRequestDTO userRequestDTO) {
+        authenticationService.register(userRequestDTO, userRequestDTO.getRole());
 
         String emailOtp = otpUtil.generateOtp(userRequestDTO.getEmail());
         otpUtil.sendOtpEmail(userRequestDTO.getEmail(), emailOtp);

@@ -4,13 +4,16 @@ import it.sportandreview.enums.SportType;
 import it.sportandreview.entity.Sport;
 import it.sportandreview.repository.SportRepository;
 import jakarta.annotation.PostConstruct;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
+@Slf4j
 public class SportDataInitializer {
 
     private final SportRepository sportRepository;
@@ -24,14 +27,26 @@ public class SportDataInitializer {
     public void init() {
         if (sportRepository.count() == 0) {
             List<Sport> sports = Arrays.asList(
-                    new Sport(4, SportType.TENNIS),
-                    new Sport(22, SportType.CALCIO),
-                    new Sport(10, SportType.BASKET),
-                    new Sport(10, SportType.CALCIOA5),
-                    new Sport(14, SportType.CALCETTO),
-                    new Sport(16, SportType.CALCIOTTO)
+                    new Sport(4, SportType.PADEL, 60),
+                    new Sport(22, SportType.CALCIO, 90),
+                    new Sport(10, SportType.BASKET, 60),
+                    new Sport(10, SportType.CALCIOA5, 60),
+                    new Sport(14, SportType.CALCETTO, 60),
+                    new Sport(16, SportType.CALCIOTTO, 90)
             );
-            sportRepository.saveAll(sports);
+
+            List<Sport> existingSports = sportRepository.findAll();
+            List<Sport> newSports = sports.stream()
+                    .filter(sport -> existingSports.stream()
+                            .noneMatch(existingSport -> existingSport.getSportType().equals(sport.getSportType())))
+                    .collect(Collectors.toList());
+
+            if (!newSports.isEmpty()) {
+                sportRepository.saveAll(newSports);
+                log.info("Sports data initialized: {}", newSports);
+            } else {
+                log.info("All sports data already initialized.");
+            }
         }
     }
 }

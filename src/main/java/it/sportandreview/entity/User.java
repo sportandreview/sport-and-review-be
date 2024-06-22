@@ -92,6 +92,10 @@ public class User implements UserDetails {
     @JsonManagedReference
     private Set<SportAssessment> sportAssessmentSet;
 
+    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonManagedReference
+    private Set<SportFacility> sportFacilities;
+
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<Booking> bookings;
 

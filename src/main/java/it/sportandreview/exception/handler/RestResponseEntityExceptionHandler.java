@@ -135,6 +135,28 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
         return new ValidationErrorResponseDTO(error.getObjectName(), fieldError, error.getDefaultMessage(), rejectedValue);
     }
 
+    @ExceptionHandler(SportFacilityNotFoundException.class)
+    public ResponseEntity<ApiResponseDTO> handleSportFacilityNotFoundException(SportFacilityNotFoundException ex, WebRequest request) {
+        String message = messageSource.getMessage("sportfacility.not.found", null, LocaleContextHolder.getLocale());
+        log.error("handleSportFacilityNotFoundException: {}", message, ex);
+        var error = ApiResponseDTO.builder()
+                .status(HttpServletResponse.SC_NOT_FOUND)
+                .message(message)
+                .build();
+        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(InvalidTimeSlotException.class)
+    public ResponseEntity<ApiResponseDTO> handleInvalidTimeSlotException(InvalidTimeSlotException ex, WebRequest request) {
+        String message = messageSource.getMessage("invalid.time.slot", null, LocaleContextHolder.getLocale());
+        log.error("handleInvalidTimeSlotException: {}", message, ex);
+        var error = ApiResponseDTO.builder()
+                .status(HttpServletResponse.SC_BAD_REQUEST)
+                .message(message)
+                .build();
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponseDTO> handleAllOtherExceptions(Exception ex, WebRequest request) {
         log.error("Unhandled exception: ", ex);

@@ -7,6 +7,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.DayOfWeek;
+import java.time.LocalTime;
 import java.util.Set;
 
 @Entity
@@ -46,4 +48,20 @@ public class SportFacility {
     )
     @JsonManagedReference
     private Set<Service> services;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "owner_id", nullable = false)
+    private User owner;
+
+    @Column(name = "opening_time", nullable = false)
+    private LocalTime openingTime;
+
+    @Column(name = "closing_time", nullable = false)
+    private LocalTime closingTime;
+
+    @ElementCollection(targetClass = DayOfWeek.class)
+    @CollectionTable(name = "facility_open_days", joinColumns = @JoinColumn(name = "facility_id"))
+    @Column(name = "day_of_week")
+    @Enumerated(EnumType.STRING)
+    private Set<DayOfWeek> openDays;
 }

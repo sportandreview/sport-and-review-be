@@ -83,3 +83,8 @@ mitto:
   api:
     key: ${MITTO_KEY}
     url: ${MITTO_URL}
+
+google:
+  maps:
+    api:
+      key: ${GOOGLE_MAPS_KEY}

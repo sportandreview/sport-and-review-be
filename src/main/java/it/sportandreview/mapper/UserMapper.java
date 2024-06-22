@@ -25,4 +25,3 @@ public interface UserMapper {
         return GenderType.valueOf(genderType.toUpperCase());
     }
 }
-

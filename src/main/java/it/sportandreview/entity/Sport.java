@@ -42,9 +42,13 @@ public class Sport {
     @OneToMany(mappedBy = "sport", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<SportAssessment> sportAssessmentSet;
 
-    public Sport(Integer maxPlayers, SportType sportType) {
+    @Column(name = "slot_duration_minutes", nullable = false)
+    private int slotDurationMinutes;
+
+    public Sport(Integer maxPlayers, SportType sportType, int slotDurationMinutes) {
         this.maxPlayers = maxPlayers;
         this.sportType = sportType;
+        this.slotDurationMinutes = slotDurationMinutes;
     }
 
     @Transient

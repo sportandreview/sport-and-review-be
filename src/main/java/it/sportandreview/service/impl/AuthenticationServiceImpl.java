@@ -47,7 +47,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private static final Integer STANDARD_RELIABILITY = 100;
 
     @Override
-    public void register(UserRequestDTO userRequestDTO) {
+    public void register(UserRequestDTO userRequestDTO, RoleType roleType) {
         log.info("Registering user with email: {}", userRequestDTO.getEmail());
         if (userService.findByEmail(userRequestDTO.getEmail()).isPresent()) {
             throw new UserAlreadyExistException(messageSource.getMessage("user.mail.already.exists", null, LocaleContextHolder.getLocale()));
@@ -57,19 +57,26 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         }
 
         User user = userMapper.toEntity(userRequestDTO);
-        user.setRanking(STANDARD_RANKING);
-        user.setReliability(STANDARD_RELIABILITY);
-        user.setRoleType(RoleType.ROLE_USER);
+        user.setRoleType(roleType);
         user.setPassword(passwordEncoder.encode(userRequestDTO.getPassword()));
 
+        initializeUserRoleSpecificFields(user);
+
         userRepository.save(user);
+    }
+
+    private void initializeUserRoleSpecificFields(User user) {
+        if (user.getRoleType() == RoleType.ROLE_USER) {
+            user.setRanking(STANDARD_RANKING);
+            user.setReliability(STANDARD_RELIABILITY);
+        }
     }
 
     @Override
     public AuthenticationResponseDTO authenticate(AuthenticationRequestDTO request) throws UserNotFoundException, BadCredentialsException {
         try {
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
-        }catch (org.springframework.security.authentication.BadCredentialsException e) {
+        } catch (org.springframework.security.authentication.BadCredentialsException e) {
             throw new BadCredentialsException(messageSource.getMessage("user.authenticate.failure", null, LocaleContextHolder.getLocale()));
         }
         User user = userService.findByEmail(request.getEmail()).orElseThrow(() -> new UserNotFoundException());

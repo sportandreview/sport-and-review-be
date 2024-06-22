@@ -22,6 +22,16 @@ public class Playground {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "name", nullable = false)
+    private String name;
+
+    @Column(name = "rating")
+    private Double rating;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "surface_type", nullable = false)
+    private SurfaceType surfaceType;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "sport_facility_id", nullable = false)
     @JsonBackReference
@@ -31,16 +41,6 @@ public class Playground {
     @JoinColumn(name = "sport_id", nullable = false)
     @JsonBackReference
     private Sport sport;
-
-    @Column(name = "name", nullable = false)
-    private String name;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "surface_type", nullable = false)
-    private SurfaceType surfaceType;
-
-    @Column(name = "rating")
-    private Double rating;
 
     @OneToMany(mappedBy = "playground", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonManagedReference

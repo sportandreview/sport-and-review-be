@@ -1,4 +1,4 @@
-package it.sportandreview.mapper;
+package it.sportandreview.mapper.helper;
 
 import it.sportandreview.entity.Sport;
 import it.sportandreview.repository.SportRepository;
