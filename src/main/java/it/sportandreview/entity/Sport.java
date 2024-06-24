@@ -1,58 +1,54 @@
 package it.sportandreview.entity;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import it.sportandreview.enums.SportType;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.HashSet;
 import java.util.Set;
 
 @Entity
 @Table(name = "sport")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class Sport {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "max_players", nullable = false)
+    @Column(nullable = false)
     private Integer maxPlayers;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "sport_type", nullable = false, unique = true)
+    @Column(nullable = false, unique = true)
     private SportType sportType;
 
+    @Column(nullable = false)
+    private int slotDurationMinutes;
+
     @OneToMany(mappedBy = "sport", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JsonBackReference
     private Set<Playground> playgrounds;
 
     @ManyToMany(mappedBy = "sportSet")
-    @JsonBackReference
     private Set<User> users = new HashSet<>();
 
     @OneToMany(mappedBy = "sport", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<SportAssessment> sportAssessmentSet;
 
-    @Column(name = "slot_duration_minutes", nullable = false)
-    private int slotDurationMinutes;
+    @Transient
+    public String getSportDescription() {
+        return sportType.getDescription();
+    }
 
     public Sport(Integer maxPlayers, SportType sportType, int slotDurationMinutes) {
         this.maxPlayers = maxPlayers;
         this.sportType = sportType;
         this.slotDurationMinutes = slotDurationMinutes;
-    }
-
-    @Transient
-    public String getSportDescription() {
-        return sportType.getDescription();
     }
 }

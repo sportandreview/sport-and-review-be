@@ -7,6 +7,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalTime;
 import java.util.Set;
 
 @Data
@@ -24,4 +25,13 @@ public class PlaygroundRequestDTO {
 
     @NotNull(message = "{validation.sportId.required}")
     private Long sportId;
+
+    @NotNull(message = "{validation.openingTime.required}")
+    private LocalTime openingTime;
+
+    @NotNull(message = "{validation.closingTime.required}")
+    private LocalTime closingTime;
+
+    @NotNull(message = "{validation.openDays.required}")
+    private Set<String> openDays; // In formato stringa, es. ["MONDAY", "TUESDAY"]
 }

@@ -1,52 +1,46 @@
 package it.sportandreview.entity;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
-import java.time.LocalDateTime;
 import java.util.Set;
 
 @Entity
 @Table(name = "booking")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class Booking {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false)
+    private Integer numberOfPlayers;
+
+    @Column(nullable = false)
+    private Double totalCost;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
-    @JsonBackReference
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "sport_facility_id", nullable = false)
-    @JsonBackReference
     private SportFacility sportFacility;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "playground_id", nullable = false)
-    @JsonBackReference
     private Playground playground;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "time_slot_id", nullable = false)
-    @JsonBackReference
     private TimeSlot timeSlot;
-
-    @Column(name = "number_of_players", nullable = false)
-    private Integer numberOfPlayers;
-
-    @Column(name = "total_cost", nullable = false)
-    private Double totalCost;
 
     @ManyToMany
     @JoinTable(
@@ -54,6 +48,5 @@ public class Booking {
             joinColumns = @JoinColumn(name = "booking_id"),
             inverseJoinColumns = @JoinColumn(name = "service_id")
     )
-    @JsonManagedReference
     private Set<Service> additionalServices;
 }

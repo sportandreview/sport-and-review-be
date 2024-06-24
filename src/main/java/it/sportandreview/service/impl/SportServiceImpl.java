@@ -1,22 +1,22 @@
 package it.sportandreview.service.impl;
 
-import it.sportandreview.exception.SportNotFoundException;
 import it.sportandreview.entity.Sport;
+import it.sportandreview.exception.EntityNotFoundException;
 import it.sportandreview.repository.SportRepository;
 import it.sportandreview.service.SportService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class SportServiceImpl implements SportService {
-    private final SportRepository sportRepository;
 
-    @Autowired
-    public SportServiceImpl(SportRepository sportRepository) {
-        this.sportRepository = sportRepository;
-    }
+    private final SportRepository sportRepository;
+    private final MessageSource messageSource;
 
     @Override
     public List<Sport> getAllSports() {
@@ -25,7 +25,9 @@ public class SportServiceImpl implements SportService {
 
     @Override
     public Sport getSportById(Long id) {
-        return sportRepository.findById(id).orElseThrow(() -> new SportNotFoundException(id));
+        return sportRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(
+                        messageSource.getMessage("sport.not.found", new Object[]{id}, LocaleContextHolder.getLocale())));
     }
 
     @Override
@@ -41,13 +43,15 @@ public class SportServiceImpl implements SportService {
                     existingSport.setSportType(sportDetails.getSportType());
                     return sportRepository.save(existingSport);
                 })
-                .orElseThrow(() -> new SportNotFoundException(id));
+                .orElseThrow(() -> new EntityNotFoundException(
+                        messageSource.getMessage("sport.not.found", new Object[]{id}, LocaleContextHolder.getLocale())));
     }
 
     @Override
     public void deleteSport(Long id) {
         if (!sportRepository.existsById(id)) {
-            throw new SportNotFoundException(id);
+            throw new EntityNotFoundException(
+                    messageSource.getMessage("sport.not.found", new Object[]{id}, LocaleContextHolder.getLocale()));
         }
         sportRepository.deleteById(id);
     }

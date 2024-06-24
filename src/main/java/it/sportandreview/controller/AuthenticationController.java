@@ -5,11 +5,9 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import it.sportandreview.dto.request.AuthenticationRequestDTO;
 import it.sportandreview.dto.request.UserRequestDTO;
+import it.sportandreview.dto.response.ApiResponseDTO;
 import it.sportandreview.dto.response.AuthenticationResponseDTO;
 import it.sportandreview.service.AuthenticationService;
-import it.sportandreview.dto.response.ApiResponseDTO;
-import it.sportandreview.exception.TokenNotValidException;
-import it.sportandreview.exception.UserNotFoundException;
 import it.sportandreview.util.OtpUtil;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -57,7 +55,7 @@ public class AuthenticationController {
             @ApiResponse(responseCode = "404", description = "Utente non trovato"),
             @ApiResponse(responseCode = "401", description = "Credenziali non valide")
     })
-    public ResponseEntity<ApiResponseDTO<AuthenticationResponseDTO>> authenticate(@Valid @RequestBody AuthenticationRequestDTO request) throws UserNotFoundException {
+    public ResponseEntity<ApiResponseDTO<AuthenticationResponseDTO>> authenticate(@Valid @RequestBody AuthenticationRequestDTO request) {
         AuthenticationResponseDTO response = authenticationService.authenticate(request);
         String message = null;
         if (!response.isEmailCheck()) {
@@ -78,7 +76,7 @@ public class AuthenticationController {
             @ApiResponse(responseCode = "404", description = "Utente non trovato"),
             @ApiResponse(responseCode = "401", description = "Token non valido")
     })
-    public ResponseEntity<ApiResponseDTO<AuthenticationResponseDTO>> refreshToken(@Valid @RequestBody AuthenticationRequestDTO request) throws UserNotFoundException, TokenNotValidException {
+    public ResponseEntity<ApiResponseDTO<AuthenticationResponseDTO>> refreshToken(@Valid @RequestBody AuthenticationRequestDTO request) {
         ApiResponseDTO<AuthenticationResponseDTO> response = ApiResponseDTO.<AuthenticationResponseDTO>builder()
                 .status(HttpServletResponse.SC_OK)
                 .message(null)

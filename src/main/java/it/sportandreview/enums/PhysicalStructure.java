@@ -4,10 +4,10 @@ import lombok.Getter;
 
 @Getter
 public enum PhysicalStructure {
-    ROBUSTO("Robusto"),
-    ASCIUTTO("Asciutto"),
-    ATLETICO("Atletico"),
-    PALESTRATO("Palestrato");
+    ROBUST("Robusto"),
+    LEAN("Asciutto"),
+    ATHLETIC("Atletico"),
+    MUSCULAR("Palestrato");
 
     private final String description;
 

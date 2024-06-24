@@ -1,52 +1,60 @@
 package it.sportandreview.entity;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import it.sportandreview.enums.SurfaceType;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
+import java.time.DayOfWeek;
+import java.time.LocalTime;
 import java.util.Set;
 
 @Entity
-@Table(name = "playground")
-@Data
+@Table(name = "playground", uniqueConstraints = @UniqueConstraint(columnNames = {"name", "sport_facility_id"}))
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class Playground {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "name", nullable = false)
+    @Column(nullable = false)
     private String name;
 
-    @Column(name = "rating")
     private Double rating;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "surface_type", nullable = false)
+    @Column(nullable = false)
     private SurfaceType surfaceType;
+
+    @Column(nullable = false)
+    private LocalTime openingTime;
+
+    @Column(nullable = false)
+    private LocalTime closingTime;
+
+    @ElementCollection(targetClass = DayOfWeek.class)
+    @CollectionTable(name = "playground_open_days", joinColumns = @JoinColumn(name = "playground_id"))
+    @Column(name = "day_of_week")
+    @Enumerated(EnumType.STRING)
+    private Set<DayOfWeek> openDays;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "sport_facility_id", nullable = false)
-    @JsonBackReference
     private SportFacility sportFacility;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "sport_id", nullable = false)
-    @JsonBackReference
     private Sport sport;
 
     @OneToMany(mappedBy = "playground", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JsonManagedReference
     private Set<TimeSlot> timeSlots;
 
     @OneToMany(mappedBy = "playground", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JsonManagedReference
     private Set<Booking> bookings;
 }

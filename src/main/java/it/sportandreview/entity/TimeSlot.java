@@ -1,37 +1,35 @@
 package it.sportandreview.entity;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalTime;
 
 @Entity
 @Table(name = "time_slot")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class TimeSlot {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "start_time", nullable = false)
+    @Column(nullable = false)
     private LocalTime startTime;
 
-    @Column(name = "end_time", nullable = false)
+    @Column(nullable = false)
     private LocalTime endTime;
 
-    @Column(name = "available", nullable = false)
+    @Column(nullable = false)
     private boolean available;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "playground_id", nullable = false)
-    @JsonBackReference
     private Playground playground;
-
 }

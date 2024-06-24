@@ -5,17 +5,22 @@ import it.sportandreview.dto.response.PlaygroundResponseDTO;
 import it.sportandreview.entity.Playground;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import org.mapstruct.MappingTarget;
 
-@Mapper(componentModel = "spring", uses = {TimeSlotMapper.class})
+import java.time.DayOfWeek;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+@Mapper(componentModel = "spring")
 public interface PlaygroundMapper {
 
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "sportFacility", ignore = true)
-    @Mapping(target = "timeSlots", ignore = true)
-    Playground toEntity(PlaygroundRequestDTO dto);
+    @Mapping(target = "openDays", expression = "java(convertOpenDays(playgroundRequestDTO.getOpenDays()))")
+    Playground toEntity(PlaygroundRequestDTO playgroundRequestDTO);
 
     PlaygroundResponseDTO toDto(Playground playground);
 
-    void updateEntityFromDto(PlaygroundRequestDTO dto, @MappingTarget Playground entity);
+    default Set<DayOfWeek> convertOpenDays(Set<String> openDays) {
+        return openDays.stream()
+                .map(DayOfWeek::valueOf)
+                .collect(Collectors.toSet());
+    }
 }

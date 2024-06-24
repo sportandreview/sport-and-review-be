@@ -6,13 +6,15 @@ import it.sportandreview.dto.response.SportFacilityResponseDTO;
 import it.sportandreview.entity.Address;
 import it.sportandreview.entity.SportFacility;
 import it.sportandreview.entity.User;
-import it.sportandreview.exception.SportFacilityNotFoundException;
+import it.sportandreview.exception.EntityNotFoundException;
 import it.sportandreview.mapper.SportFacilityMapper;
 import it.sportandreview.repository.SportFacilityRepository;
 import it.sportandreview.repository.UserRepository;
 import it.sportandreview.service.GoogleMapsService;
 import it.sportandreview.service.SportFacilityService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
@@ -28,6 +30,7 @@ public class SportFacilityServiceImpl implements SportFacilityService {
     private final SportFacilityMapper sportFacilityMapper;
     private final GoogleMapsService googleMapsService;
     private final UserRepository userRepository;
+    private final MessageSource messageSource;
 
     @Override
     public SportFacilityResponseDTO createSportFacility(SportFacilityRequestDTO request) {
@@ -45,7 +48,8 @@ public class SportFacilityServiceImpl implements SportFacilityService {
     @Override
     public SportFacilityResponseDTO updateSportFacility(Long id, SportFacilityRequestDTO request) {
         SportFacility sportFacility = sportFacilityRepository.findById(id)
-                .orElseThrow(() -> new SportFacilityNotFoundException(id));
+                .orElseThrow(() -> new EntityNotFoundException(
+                        messageSource.getMessage("sportfacility.not.found", new Object[]{id}, LocaleContextHolder.getLocale())));
         sportFacilityMapper.updateEntityFromDto(request, sportFacility);
 
         Address address = getAddressFromGoogleMaps(request.getAddress().getPlaceId());
@@ -58,7 +62,8 @@ public class SportFacilityServiceImpl implements SportFacilityService {
     @Override
     public void deleteSportFacility(Long id) {
         if (!sportFacilityRepository.existsById(id)) {
-            throw new SportFacilityNotFoundException(id);
+            throw new EntityNotFoundException(
+                    messageSource.getMessage("sportfacility.not.found", new Object[]{id}, LocaleContextHolder.getLocale()));
         }
         sportFacilityRepository.deleteById(id);
     }
@@ -66,7 +71,8 @@ public class SportFacilityServiceImpl implements SportFacilityService {
     @Override
     public SportFacilityResponseDTO getSportFacilityById(Long id) {
         SportFacility sportFacility = sportFacilityRepository.findById(id)
-                .orElseThrow(() -> new SportFacilityNotFoundException(id));
+                .orElseThrow(() -> new EntityNotFoundException(
+                        messageSource.getMessage("sportfacility.not.found", new Object[]{id}, LocaleContextHolder.getLocale())));
         return sportFacilityMapper.toDto(sportFacility);
     }
 
@@ -76,6 +82,8 @@ public class SportFacilityServiceImpl implements SportFacilityService {
                 .map(sportFacilityMapper::toDto)
                 .collect(Collectors.toList());
     }
+
+    // Private methods
 
     private Address getAddressFromGoogleMaps(String placeId) {
         GooglePlaceDetailsResponse.Result placeDetails = googleMapsService.getPlaceDetails(placeId).getResult();

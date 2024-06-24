@@ -2,15 +2,17 @@ package it.sportandreview.service.impl;
 
 import it.sportandreview.entity.Sport;
 import it.sportandreview.entity.User;
-import it.sportandreview.exception.SportNotFoundException;
-import it.sportandreview.exception.UserAlreadyExistException;
-import it.sportandreview.exception.UserNotFoundException;
+import it.sportandreview.exception.EntityNotFoundException;
 import it.sportandreview.repository.SportRepository;
 import it.sportandreview.repository.UserRepository;
 import it.sportandreview.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ReflectionUtils;
 
+import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Optional;
 
@@ -18,7 +20,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
-    private final SportRepository sportRepository;
+    private final MessageSource messageSource;
 
 
     @Override
@@ -28,46 +30,42 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User getUserById(Long id) {
-        return userRepository.findById(id).orElseThrow(() -> new UserNotFoundException(id));
+        return userRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(
+                        messageSource.getMessage("user.not.found", new Object[]{id}, LocaleContextHolder.getLocale())));
     }
 
-    @Override
-    public User createUser(User user) {
-        if (userRepository.existsByEmail(user.getEmail())) {
-            throw new UserAlreadyExistException();
-        }
-        if (userRepository.existsByNickname(user.getNickname())) {
-            throw new UserAlreadyExistException();
-        }
-        return userRepository.save(user);
-    }
 
     @Override
     public User updateUser(Long id, User userDetails) {
-        return userRepository.findById(id)
-                .map(existingUser -> {
-                    existingUser.setNickname(userDetails.getNickname());
-                    existingUser.setName(userDetails.getName());
-                    existingUser.setSurname(userDetails.getSurname());
-                    existingUser.setBirthDate(userDetails.getBirthDate());
-                    existingUser.setGenderType(userDetails.getGenderType());
-                    existingUser.setEmail(userDetails.getEmail());
-                    existingUser.setPassword(userDetails.getPassword());
-                    existingUser.setMobilePhone(userDetails.getMobilePhone());
-                    existingUser.setRoleType(userDetails.getRoleType());
-                    existingUser.setSportSet(userDetails.getSportSet());
-                    existingUser.setHeight(userDetails.getHeight());
-                    existingUser.setWeight(userDetails.getWeight());
-                    existingUser.setPhysicalStructure(userDetails.getPhysicalStructure());
-                    return userRepository.save(existingUser);
-                })
-                .orElseThrow(() -> new UserNotFoundException(id));
+        User existingUser = userRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(
+                        messageSource.getMessage("user.not.found", new Object[]{id}, LocaleContextHolder.getLocale())));
+
+        updateNonNullFields(existingUser, userDetails);
+
+        return userRepository.save(existingUser);
+    }
+
+    private void updateNonNullFields(User existingUser, User userDetails) {
+        Field[] fields = User.class.getDeclaredFields();
+
+        for (Field field : fields) {
+            field.setAccessible(true);
+            Object newValue = ReflectionUtils.getField(field, userDetails);
+
+            if (newValue != null && !"password".equals(field.getName())
+                    && !"roleType".equals(field.getName())
+                    && !"sportSet".equals(field.getName())) {
+                ReflectionUtils.setField(field, existingUser, newValue);
+            }
+        }
     }
 
     @Override
     public void deleteUser(Long id) {
         if (!userRepository.existsById(id)) {
-            throw new UserNotFoundException(id);
+            throw new EntityNotFoundException(messageSource.getMessage("user.not.found", new Object[]{id}, LocaleContextHolder.getLocale()));
         }
         userRepository.deleteById(id);
     }
@@ -82,30 +80,4 @@ public class UserServiceImpl implements UserService {
         return userRepository.findByNickname(nickname);
     }
 
-    @Override
-    public Optional<User> findByEmailOrMobilePhone(String email, String mobilePhone) {
-        return userRepository.findByEmailOrMobilePhone(email, mobilePhone);
-    }
-
-    @Override
-    public void addUserSport(Long userId, Long sportId) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException(userId));
-        Sport sport = sportRepository.findById(sportId).orElseThrow(() -> new SportNotFoundException(sportId));
-        user.getSportSet().add(sport);
-        userRepository.save(user);
-    }
-
-    @Override
-    public void removeUserSport(Long userId, Long sportId) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException(userId));
-        Sport sport = sportRepository.findById(sportId).orElseThrow(() -> new SportNotFoundException(sportId));
-        user.getSportSet().remove(sport);
-        userRepository.save(user);
-    }
-
-    @Override
-    public List<Sport> getUserSports(Long userId) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException(userId));
-        return List.copyOf(user.getSportSet());
-    }
 }

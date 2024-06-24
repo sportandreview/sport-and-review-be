@@ -35,6 +35,7 @@ public class UserController {
     private final UserMapper userMapper;
     private final MessageSource messageSource;
 
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @Operation(summary = "View a list of all users", description = "Retrieve a list of all users", tags = { "User" })
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "List of users retrieved successfully",
@@ -62,21 +63,6 @@ public class UserController {
             @PathVariable Long id) {
         User user = userService.getUserById(id);
         return new ApiResponseDTO<>(HttpServletResponse.SC_OK, null, userMapper.toDto(user));
-    }
-
-    @Operation(summary = "Create a new user", description = "Create a new user", tags = { "User" })
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "User created successfully",
-                    content = { @Content(mediaType = "application/json", schema = @Schema(implementation = UserResponseDTO.class)) }),
-            @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content),
-            @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content),
-            @ApiResponse(responseCode = "404", description = "Not Found", content = @Content) })
-    @PostMapping
-    public ApiResponseDTO<UserResponseDTO> createUser(
-            @RequestBody User user) {
-        User createdUser = userService.createUser(user);
-        String message = messageSource.getMessage("user.create.success", null, LocaleContextHolder.getLocale());
-        return new ApiResponseDTO<>(HttpServletResponse.SC_CREATED, message, userMapper.toDto(createdUser));
     }
 
     @Operation(summary = "Update an existing user", description = "Update an existing user", tags = { "User" })
@@ -108,40 +94,6 @@ public class UserController {
         userService.deleteUser(id);
         String message = messageSource.getMessage("user.delete.success", null, LocaleContextHolder.getLocale());
         return new ApiResponseDTO<>(HttpServletResponse.SC_NO_CONTENT, message, null);
-    }
-
-    @Operation(summary = "Add a sport to user", description = "Add a sport to the user's list of sports")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Sport added successfully"),
-            @ApiResponse(responseCode = "404", description = "User or Sport not found")
-    })
-    @PostMapping("/{userId}/sports/{sportId}")
-    public ApiResponseDTO<Void> addUserSport(@PathVariable Long userId, @PathVariable Long sportId) {
-        userService.addUserSport(userId, sportId);
-        return new ApiResponseDTO<>(HttpServletResponse.SC_OK, "Sport added successfully", null);
-    }
-
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @Operation(summary = "Remove a sport from user", description = "Remove a sport from the user's list of sports")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Sport removed successfully"),
-            @ApiResponse(responseCode = "404", description = "User or Sport not found")
-    })
-    @DeleteMapping("/{userId}/sports/{sportId}")
-    public ApiResponseDTO<Void> removeUserSport(@PathVariable Long userId, @PathVariable Long sportId) {
-        userService.removeUserSport(userId, sportId);
-        return new ApiResponseDTO<>(HttpServletResponse.SC_OK, "Sport removed successfully", null);
-    }
-
-    @Operation(summary = "Get sports by user", description = "Get all sports associated with the user")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Sports retrieved successfully"),
-            @ApiResponse(responseCode = "404", description = "User not found")
-    })
-    @GetMapping("/{userId}/sports")
-    public ApiResponseDTO<List<Sport>> getUserSports(@PathVariable Long userId) {
-        List<Sport> sports = userService.getUserSports(userId);
-        return new ApiResponseDTO<>(HttpServletResponse.SC_OK, null, sports);
     }
 
     @GetMapping("/options/physical-structures")

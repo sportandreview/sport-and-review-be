@@ -4,10 +4,7 @@ import it.sportandreview.dto.request.AuthenticationRequestDTO;
 import it.sportandreview.dto.request.UserRequestDTO;
 import it.sportandreview.dto.response.AuthenticationResponseDTO;
 import it.sportandreview.enums.RoleType;
-import it.sportandreview.exception.BadCredentialsException;
-import it.sportandreview.exception.TokenNotValidException;
-import it.sportandreview.exception.UserAlreadyExistException;
-import it.sportandreview.exception.UserNotFoundException;
+import it.sportandreview.exception.*;
 import it.sportandreview.mapper.UserMapper;
 import it.sportandreview.repository.UserRepository;
 import it.sportandreview.service.AuthenticationService;
@@ -32,6 +29,13 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class AuthenticationServiceImpl implements AuthenticationService {
 
+    // Constants
+    private static final long TOKEN_EXPIRATION_TIME = 1000 * 60 * 60;
+    private static final long REFRESH_TOKEN_EXPIRATION_TIME = 1000 * 60 * 70;
+    private static final Integer STANDARD_RANKING = 50;
+    private static final Integer STANDARD_RELIABILITY = 100;
+
+    // Dependencies
     private final JwtTokenUtil jwtTokenUtil;
     private final UserService userService;
     private final UserRepository userRepository;
@@ -41,55 +45,46 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final UserMapper userMapper;
     private final MessageSource messageSource;
 
-    private static final long TOKEN_EXPIRATION_TIME = 1000 * 60 * 60;
-    private static final long REFRESH_TOKEN_EXPIRATION_TIME = 1000 * 60 * 70;
-    private static final Integer STANDARD_RANKING = 50;
-    private static final Integer STANDARD_RELIABILITY = 100;
-
     @Override
     public void register(UserRequestDTO userRequestDTO, RoleType roleType) {
-        log.info("Registering user with email: {}", userRequestDTO.getEmail());
-        if (userService.findByEmail(userRequestDTO.getEmail()).isPresent()) {
-            throw new UserAlreadyExistException(messageSource.getMessage("user.mail.already.exists", null, LocaleContextHolder.getLocale()));
-        }
-        if (userService.findByNickname(userRequestDTO.getNickname()).isPresent()) {
-            throw new UserAlreadyExistException(messageSource.getMessage("user.nickname.already.exists", null, LocaleContextHolder.getLocale()));
-        }
-
+        log.info("Registering user with email: {} and role: {}", userRequestDTO.getEmail(), roleType.getDescription());
+        validateUserRequest(userRequestDTO);
         User user = userMapper.toEntity(userRequestDTO);
         user.setRoleType(roleType);
         user.setPassword(passwordEncoder.encode(userRequestDTO.getPassword()));
-
         initializeUserRoleSpecificFields(user);
-
         userRepository.save(user);
     }
 
-    private void initializeUserRoleSpecificFields(User user) {
-        if (user.getRoleType() == RoleType.ROLE_USER) {
-            user.setRanking(STANDARD_RANKING);
-            user.setReliability(STANDARD_RELIABILITY);
-        }
-    }
-
     @Override
-    public AuthenticationResponseDTO authenticate(AuthenticationRequestDTO request) throws UserNotFoundException, BadCredentialsException {
-        try {
-            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
-        } catch (org.springframework.security.authentication.BadCredentialsException e) {
-            throw new BadCredentialsException(messageSource.getMessage("user.authenticate.failure", null, LocaleContextHolder.getLocale()));
-        }
-        User user = userService.findByEmail(request.getEmail()).orElseThrow(() -> new UserNotFoundException());
+    public AuthenticationResponseDTO authenticate(AuthenticationRequestDTO request) {
+        authenticateUser(request.getEmail(), request.getPassword());
+        User user = userService.findByEmail(request.getEmail()).orElseThrow(() -> new EntityNotFoundException(
+                messageSource.getMessage("user.not.found", new Object[]{request.getEmail()}, LocaleContextHolder.getLocale())));
         return generateTokens(user);
     }
 
     @Override
-    public AuthenticationResponseDTO refreshToken(AuthenticationRequestDTO request) throws UserNotFoundException, TokenNotValidException {
-        User user = userService.findByEmail(request.getEmail()).orElseThrow(() -> new UserNotFoundException());
+    public AuthenticationResponseDTO refreshToken(AuthenticationRequestDTO request) {
+        User user = userService.findByEmail(request.getEmail()).orElseThrow(() -> new EntityNotFoundException(
+                messageSource.getMessage("user.not.found", new Object[]{request.getEmail()}, LocaleContextHolder.getLocale())));
         if (jwtTokenUtil.validateToken(request.getRefreshToken(), user)) {
             return generateTokens(user);
         }
         throw new TokenNotValidException("Token di refresh non valido");
+    }
+
+    public void updateVerificationStatus(String key, boolean verified) {
+        Optional<User> userOpt = userRepository.findByEmailOrMobilePhone(key, key);
+        if (userOpt.isPresent()) {
+            User user = userOpt.get();
+            if (key.contains("@")) {
+                user.setEmailCheck(verified);
+            } else {
+                user.setMobilePhoneCheck(verified);
+            }
+            userRepository.save(user);
+        }
     }
 
     public AuthenticationResponseDTO generateTokens(User user) {
@@ -105,16 +100,35 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 .build();
     }
 
-    public void updateVerificationStatus(String key, boolean verified) {
-        Optional<User> userOpt = userRepository.findByEmailOrMobilePhone(key, key);
-        if (userOpt.isPresent()) {
-            User user = userOpt.get();
-            if (key.contains("@")) {
-                user.setEmailCheck(verified);
-            } else {
-                user.setMobilePhoneCheck(verified);
-            }
-            userRepository.save(user);
+    private void validateUserRequest(UserRequestDTO userRequestDTO) {
+        if (userService.findByEmail(userRequestDTO.getEmail()).isPresent()) {
+            String errorMessage = String.format(
+                    messageSource.getMessage("user.mail.already.exists", null, LocaleContextHolder.getLocale()),
+                    userRequestDTO.getEmail()
+            );
+            throw new DuplicateEntityException(errorMessage);
+        }
+        if (userService.findByNickname(userRequestDTO.getNickname()).isPresent()) {
+            String errorMessage = String.format(
+                    messageSource.getMessage("user.nickname.already.exists", null, LocaleContextHolder.getLocale()),
+                    userRequestDTO.getNickname()
+            );
+            throw new DuplicateEntityException(errorMessage);
+        }
+    }
+
+    private void initializeUserRoleSpecificFields(User user) {
+        if (user.getRoleType() == RoleType.ROLE_USER) {
+            user.setRanking(STANDARD_RANKING);
+            user.setReliability(STANDARD_RELIABILITY);
+        }
+    }
+
+    private void authenticateUser(String email, String password) {
+        try {
+            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, password));
+        } catch (org.springframework.security.authentication.BadCredentialsException e) {
+            throw new BadCredentialsException(messageSource.getMessage("user.authenticate.failure", null, LocaleContextHolder.getLocale()));
         }
     }
 }

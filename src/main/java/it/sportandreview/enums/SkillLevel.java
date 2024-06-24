@@ -4,10 +4,10 @@ import lombok.Getter;
 
 @Getter
 public enum SkillLevel {
-    PROFESSIONISTA("Professionista"),
-    AVANZATO("Avanzato"),
-    INTERMEDIO("Intermedio"),
-    BASE("Base");
+    PROFESSIONAL("Professionista"),
+    ADVANCED("Avanzato"),
+    INTERMEDIATE("Intermedio"),
+    BASIC("Base");
 
     private final String description;
 

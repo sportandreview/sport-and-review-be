@@ -43,9 +43,8 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler(UserAlreadyExistException.class)
-    public ResponseEntity<ApiResponseDTO> handleUserAlreadyExistException(UserAlreadyExistException ex, WebRequest request) {
-        log.error("handleUserAlreadyExistException: {}", ex.getMessage(), ex);
+    @ExceptionHandler(DuplicateEntityException.class)
+    public ResponseEntity<ApiResponseDTO> handleDuplicateEntityException(DuplicateEntityException ex, WebRequest request) {
         var error = ApiResponseDTO.builder()
                 .status(HttpServletResponse.SC_CONFLICT)
                 .message(ex.getMessage())
@@ -53,13 +52,11 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
         return new ResponseEntity<>(error, HttpStatus.CONFLICT);
     }
 
-    @ExceptionHandler(UserNotFoundException.class)
-    public ResponseEntity<ApiResponseDTO> handleUserNotFoundException(UserNotFoundException ex, WebRequest request) {
-        String message = messageSource.getMessage("user.not.found", null, LocaleContextHolder.getLocale());
-        log.error("handleUserNotFoundException: {}", message, ex);
+    @ExceptionHandler(EntityNotFoundException.class)
+    public ResponseEntity<ApiResponseDTO> handleEntityNotFoundException(EntityNotFoundException ex, WebRequest request) {
         var error = ApiResponseDTO.builder()
                 .status(HttpServletResponse.SC_NOT_FOUND)
-                .message(message)
+                .message(ex.getMessage())
                 .build();
         return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
     }
@@ -85,15 +82,15 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
         return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
     }
 
-    @ExceptionHandler(SportNotFoundException.class)
-    public ResponseEntity<ApiResponseDTO> handleSportNotFoundException(SportNotFoundException ex, WebRequest request) {
-        String message = messageSource.getMessage("sport.not.found", null, LocaleContextHolder.getLocale());
-        log.error("handleSportNotFoundException: {}", message, ex);
+    @ExceptionHandler(InvalidTimeSlotException.class)
+    public ResponseEntity<ApiResponseDTO> handleInvalidTimeSlotException(InvalidTimeSlotException ex, WebRequest request) {
+        String message = messageSource.getMessage("invalid.time.slot", null, LocaleContextHolder.getLocale());
+        log.error("handleInvalidTimeSlotException: {}", message, ex);
         var error = ApiResponseDTO.builder()
-                .status(HttpServletResponse.SC_NOT_FOUND)
+                .status(HttpServletResponse.SC_BAD_REQUEST)
                 .message(message)
                 .build();
-        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(AccessDeniedException.class)
@@ -133,28 +130,6 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
             rejectedValue = String.valueOf(((FieldError) error).getRejectedValue());
         }
         return new ValidationErrorResponseDTO(error.getObjectName(), fieldError, error.getDefaultMessage(), rejectedValue);
-    }
-
-    @ExceptionHandler(SportFacilityNotFoundException.class)
-    public ResponseEntity<ApiResponseDTO> handleSportFacilityNotFoundException(SportFacilityNotFoundException ex, WebRequest request) {
-        String message = messageSource.getMessage("sportfacility.not.found", null, LocaleContextHolder.getLocale());
-        log.error("handleSportFacilityNotFoundException: {}", message, ex);
-        var error = ApiResponseDTO.builder()
-                .status(HttpServletResponse.SC_NOT_FOUND)
-                .message(message)
-                .build();
-        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
-    }
-
-    @ExceptionHandler(InvalidTimeSlotException.class)
-    public ResponseEntity<ApiResponseDTO> handleInvalidTimeSlotException(InvalidTimeSlotException ex, WebRequest request) {
-        String message = messageSource.getMessage("invalid.time.slot", null, LocaleContextHolder.getLocale());
-        log.error("handleInvalidTimeSlotException: {}", message, ex);
-        var error = ApiResponseDTO.builder()
-                .status(HttpServletResponse.SC_BAD_REQUEST)
-                .message(message)
-                .build();
-        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(Exception.class)

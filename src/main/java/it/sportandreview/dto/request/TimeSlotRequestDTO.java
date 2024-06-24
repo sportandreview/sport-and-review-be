@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 @Data
 @NoArgsConstructor
@@ -14,10 +15,10 @@ import java.time.LocalDateTime;
 @Builder
 public class TimeSlotRequestDTO {
     @NotNull(message = "{validation.startTime.required}")
-    private LocalDateTime startTime;
+    private LocalTime startTime;
 
     @NotNull(message = "{validation.endTime.required}")
-    private LocalDateTime endTime;
+    private LocalTime endTime;
 
     private boolean available;
 }
