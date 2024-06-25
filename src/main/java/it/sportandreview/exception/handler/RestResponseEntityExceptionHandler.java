@@ -32,17 +32,6 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
 
     private final MessageSource messageSource;
 
-    @Override
-    protected ResponseEntity<Object> handleHttpMessageNotReadable(HttpMessageNotReadableException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
-        String message = messageSource.getMessage("request.invalid", null, LocaleContextHolder.getLocale());
-        log.error("handleHttpMessageNotReadable: {}", message, ex);
-        var error = ApiResponseDTO.builder()
-                .status(HttpServletResponse.SC_BAD_REQUEST)
-                .message(message)
-                .build();
-        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
-    }
-
     @ExceptionHandler(DuplicateEntityException.class)
     public ResponseEntity<ApiResponseDTO> handleDuplicateEntityException(DuplicateEntityException ex, WebRequest request) {
         var error = ApiResponseDTO.builder()
@@ -61,15 +50,13 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
         return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
     }
 
-    @ExceptionHandler(UnauthorizedException.class)
-    public ResponseEntity<ApiResponseDTO> handleUnauthorizedException(UnauthorizedException ex, WebRequest request) {
-        String message = messageSource.getMessage("user.unauthorized", null, LocaleContextHolder.getLocale());
-        log.error("handleUnauthorizedException: {}", message, ex);
+    @ExceptionHandler(ValidationException.class)
+    public ResponseEntity<ApiResponseDTO> handleValidationException(ValidationException ex, WebRequest request) {
         var error = ApiResponseDTO.builder()
-                .status(HttpServletResponse.SC_UNAUTHORIZED)
-                .message(message)
+                .status(HttpServletResponse.SC_BAD_REQUEST)
+                .message(ex.getMessage())
                 .build();
-        return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(BadCredentialsException.class)
@@ -82,15 +69,15 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
         return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
     }
 
-    @ExceptionHandler(InvalidTimeSlotException.class)
-    public ResponseEntity<ApiResponseDTO> handleInvalidTimeSlotException(InvalidTimeSlotException ex, WebRequest request) {
-        String message = messageSource.getMessage("invalid.time.slot", null, LocaleContextHolder.getLocale());
-        log.error("handleInvalidTimeSlotException: {}", message, ex);
+    @ExceptionHandler(UnauthorizedException.class)
+    public ResponseEntity<ApiResponseDTO> handleUnauthorizedException(UnauthorizedException ex, WebRequest request) {
+        String message = messageSource.getMessage("user.unauthorized", null, LocaleContextHolder.getLocale());
+        log.error("handleUnauthorizedException: {}", message, ex);
         var error = ApiResponseDTO.builder()
-                .status(HttpServletResponse.SC_BAD_REQUEST)
+                .status(HttpServletResponse.SC_UNAUTHORIZED)
                 .message(message)
                 .build();
-        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
     }
 
     @ExceptionHandler(AccessDeniedException.class)
@@ -130,6 +117,17 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
             rejectedValue = String.valueOf(((FieldError) error).getRejectedValue());
         }
         return new ValidationErrorResponseDTO(error.getObjectName(), fieldError, error.getDefaultMessage(), rejectedValue);
+    }
+
+    @Override
+    protected ResponseEntity<Object> handleHttpMessageNotReadable(HttpMessageNotReadableException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
+        String message = messageSource.getMessage("request.invalid", null, LocaleContextHolder.getLocale());
+        log.error("handleHttpMessageNotReadable: {}", message, ex);
+        var error = ApiResponseDTO.builder()
+                .status(HttpServletResponse.SC_BAD_REQUEST)
+                .message(message)
+                .build();
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(Exception.class)
