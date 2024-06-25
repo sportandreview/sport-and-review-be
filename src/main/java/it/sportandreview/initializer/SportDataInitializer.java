@@ -27,7 +27,9 @@ public class SportDataInitializer {
     public void init() {
         if (sportRepository.count() == 0) {
             List<Sport> sports = Arrays.asList(
-                    new Sport(4, SportType.PADEL, 90)
+                    new Sport(4, SportType.PADEL, 90),
+                    new Sport(4, SportType.TENNIS, 60),
+                    new Sport(22, SportType.CALCIO, 90)
             );
 
             List<Sport> existingSports = sportRepository.findAll();
