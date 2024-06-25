@@ -1,13 +1,10 @@
+// SportAssessmentService.java
 package it.sportandreview.service;
 
 import it.sportandreview.dto.request.SportAssessmentListRequestDTO;
-import it.sportandreview.dto.request.SportAssessmentRequestDTO;
-import it.sportandreview.dto.response.SportAssessmentResponseDTO;
-import it.sportandreview.entity.SportAssessment;
-
-import java.util.List;
+import it.sportandreview.dto.response.SportAssessmentWrapperResponseDTO;
 
 public interface SportAssessmentService {
+    SportAssessmentWrapperResponseDTO getSportAssessmentsByUserId(Long userId);
     void createOrUpdateSportAssessmentList(Long userId, SportAssessmentListRequestDTO requestDTO);
-    SportAssessmentResponseDTO getSportAssessmentsByUserId(Long userId);
 }

@@ -6,8 +6,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import it.sportandreview.dto.response.ApiResponseDTO;
 import it.sportandreview.enums.GenderType;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Value;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -25,17 +25,23 @@ public class GenderTypeController {
             @ApiResponse(responseCode = "200", description = "Gender types retrieved successfully")
     })
     @GetMapping
-    public ApiResponseDTO<List<GenderTypeResponse>> getGenderTypes() {
+    public ResponseEntity<ApiResponseDTO<List<GenderTypeResponse>>> getGenderTypes() {
         List<GenderTypeResponse> genderTypes = Arrays.stream(GenderType.values())
                 .map(genderType -> new GenderTypeResponse(genderType.name(), genderType.getDescription()))
                 .collect(Collectors.toList());
-        return new ApiResponseDTO<>(HttpServletResponse.SC_OK, null, genderTypes);
+
+        ApiResponseDTO<List<GenderTypeResponse>> response = new ApiResponseDTO<>(
+                HttpServletResponse.SC_OK,
+                null,
+                genderTypes
+        );
+
+        return ResponseEntity.ok(response);
     }
 
-    @Data
-    @AllArgsConstructor
+    @Value
     static class GenderTypeResponse {
-        private String value;
-        private String description;
+        String value;
+        String description;
     }
 }

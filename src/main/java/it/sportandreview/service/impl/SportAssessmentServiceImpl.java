@@ -3,6 +3,7 @@ package it.sportandreview.service.impl;
 import it.sportandreview.dto.request.SportAssessmentListRequestDTO;
 import it.sportandreview.dto.request.SportAssessmentRequestDTO;
 import it.sportandreview.dto.response.SportAssessmentResponseDTO;
+import it.sportandreview.dto.response.SportAssessmentWrapperResponseDTO;
 import it.sportandreview.entity.Sport;
 import it.sportandreview.entity.SportAssessment;
 import it.sportandreview.entity.User;
@@ -16,14 +17,18 @@ import it.sportandreview.repository.UserRepository;
 import it.sportandreview.service.SportAssessmentService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -31,19 +36,40 @@ import java.util.stream.Collectors;
 @Slf4j
 public class SportAssessmentServiceImpl implements SportAssessmentService {
 
+    private final SportAssessmentRepository sportAssessmentRepository;
     private final UserRepository userRepository;
     private final SportRepository sportRepository;
-    private final SportAssessmentRepository sportAssessmentRepository;
     private final MessageSource messageSource;
 
     @Override
+    @Transactional(readOnly = true)
+    @Cacheable(value = "sportAssessments", key = "#userId")
+    public SportAssessmentWrapperResponseDTO getSportAssessmentsByUserId(Long userId) {
+        log.info("Fetching sport assessments for user with ID: {}", userId);
+        List<SportAssessmentResponseDTO> sportAssessments = sportAssessmentRepository.findSportAssessmentsByUserId(userId);
+        if (sportAssessments.isEmpty()) {
+            throw new EntityNotFoundException(getLocalizedMessage("user.not.found", userId));
+        }
+        return new SportAssessmentWrapperResponseDTO(userId, sportAssessments);
+    }
+
+    @Override
     @Transactional
+    @CacheEvict(value = "sportAssessments", key = "#userId")
     public void createOrUpdateSportAssessmentList(Long userId, SportAssessmentListRequestDTO requestDTO) {
         log.info("Creating or updating sport assessments for user with ID: {}", userId);
         User user = getUserById(userId);
 
+        Map<Long, Sport> sportsMap = getSportsMap(requestDTO);
+
+        List<SportAssessment> assessmentsToSave = new ArrayList<>();
+
         for (SportAssessmentRequestDTO assessmentDTO : requestDTO.getSportAssessmentList()) {
-            Sport sport = getSportById(assessmentDTO.getSportId());
+            Sport sport = sportsMap.get(assessmentDTO.getSportId());
+            if (sport == null) {
+                throw new EntityNotFoundException(getLocalizedMessage("sport.not.found", assessmentDTO.getSportId()));
+            }
+
             SportAssessment sportAssessment = getOrCreateSportAssessment(user, sport);
 
             List<SkillLevel> availableSkillLevels = getAvailableSkillLevels(
@@ -54,22 +80,19 @@ public class SportAssessmentServiceImpl implements SportAssessmentService {
             validateSkillLevel(assessmentDTO.getSkillLevel(), availableSkillLevels);
 
             updateSportAssessment(sportAssessment, assessmentDTO);
-            sportAssessmentRepository.save(sportAssessment);
+            assessmentsToSave.add(sportAssessment);
         }
+
+        sportAssessmentRepository.saveAll(assessmentsToSave);
         log.info("Sport assessments created or updated successfully for user with ID: {}", userId);
     }
 
-    @Override
-    @Transactional(readOnly = true)
-    public SportAssessmentResponseDTO getSportAssessmentsByUserId(Long userId) {
-        log.info("Fetching sport assessments for user with ID: {}", userId);
-        List<SportAssessment> sportAssessments = sportAssessmentRepository.findByUserIdWithDetails(userId);
-        if (sportAssessments.isEmpty()) {
-            throw new EntityNotFoundException(getLocalizedMessage("user.not.found", userId));
-        }
-
-        Long userIdFromAssessments = sportAssessments.get(0).getUser().getId();
-        return new SportAssessmentResponseDTO(userIdFromAssessments, new HashSet<>(sportAssessments));
+    private Map<Long, Sport> getSportsMap(SportAssessmentListRequestDTO requestDTO) {
+        List<Long> sportIds = requestDTO.getSportAssessmentList().stream()
+                .map(SportAssessmentRequestDTO::getSportId)
+                .collect(Collectors.toList());
+        return sportRepository.findAllById(sportIds).stream()
+                .collect(Collectors.toMap(Sport::getId, Function.identity()));
     }
 
     private User getUserById(Long userId) {
@@ -77,13 +100,8 @@ public class SportAssessmentServiceImpl implements SportAssessmentService {
                 .orElseThrow(() -> new EntityNotFoundException(getLocalizedMessage("user.not.found", userId)));
     }
 
-    private Sport getSportById(Long sportId) {
-        return sportRepository.findById(sportId)
-                .orElseThrow(() -> new EntityNotFoundException(getLocalizedMessage("sport.not.found", sportId)));
-    }
-
     private SportAssessment getOrCreateSportAssessment(User user, Sport sport) {
-        return sportAssessmentRepository.findByUserAndSport(user, sport)
+        return sportAssessmentRepository.findByUserIdAndSportId(user.getId(), sport.getId())
                 .orElseGet(() -> SportAssessment.builder()
                         .user(user)
                         .sport(sport)

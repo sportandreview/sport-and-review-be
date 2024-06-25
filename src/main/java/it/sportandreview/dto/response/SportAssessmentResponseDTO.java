@@ -1,16 +1,17 @@
 package it.sportandreview.dto.response;
 
-import it.sportandreview.entity.SportAssessment;
+import it.sportandreview.enums.SkillLevel;
+import it.sportandreview.enums.SportType;
+import it.sportandreview.enums.TrainingFrequency;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
-
-import java.util.Set;
 
 @Data
 @AllArgsConstructor
-@NoArgsConstructor
 public class SportAssessmentResponseDTO {
-    private Long userId;
-    private Set<SportAssessment> sportAssessmentList;
+    private Long id;
+    private SportType sportType;
+    private SkillLevel skillLevel;
+    private TrainingFrequency trainingFrequency;
+    private Boolean playedCompetitively;
 }

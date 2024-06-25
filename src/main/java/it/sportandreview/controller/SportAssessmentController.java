@@ -6,9 +6,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import it.sportandreview.dto.request.SportAssessmentListRequestDTO;
 import it.sportandreview.dto.response.ApiResponseDTO;
 import it.sportandreview.dto.response.OptionResponseDTO;
-import it.sportandreview.dto.request.SportAssessmentRequestDTO;
-import it.sportandreview.dto.response.SportAssessmentResponseDTO;
-import it.sportandreview.enums.PhysicalStructure;
+import it.sportandreview.dto.response.SportAssessmentWrapperResponseDTO;
 import it.sportandreview.enums.SkillLevel;
 import it.sportandreview.enums.TrainingFrequency;
 import it.sportandreview.service.SportAssessmentService;
@@ -47,8 +45,8 @@ public class SportAssessmentController {
             @ApiResponse(responseCode = "200", description = "Assessments retrieved successfully"),
             @ApiResponse(responseCode = "404", description = "The user doesn't have sport assessment")
     })
-    public ApiResponseDTO<SportAssessmentResponseDTO> getSportAssessmentsByUserId(@PathVariable Long userId) {
-        SportAssessmentResponseDTO response = sportAssessmentService.getSportAssessmentsByUserId(userId);
+    public ApiResponseDTO<SportAssessmentWrapperResponseDTO> getSportAssessmentsByUserId(@PathVariable Long userId) {
+        SportAssessmentWrapperResponseDTO response = sportAssessmentService.getSportAssessmentsByUserId(userId);
         return new ApiResponseDTO<>(HttpServletResponse.SC_OK, null, response);
     }
 

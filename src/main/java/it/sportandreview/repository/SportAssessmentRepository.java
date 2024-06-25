@@ -1,7 +1,6 @@
 package it.sportandreview.repository;
 
-import it.sportandreview.entity.Sport;
-import it.sportandreview.entity.User;
+import it.sportandreview.dto.response.SportAssessmentResponseDTO;
 import it.sportandreview.entity.SportAssessment;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -11,13 +10,10 @@ import java.util.List;
 import java.util.Optional;
 
 public interface SportAssessmentRepository extends JpaRepository<SportAssessment, Long> {
-    List<SportAssessment> findByUser(User user);
-    Optional<SportAssessment> findByUserAndSport(User user, Sport sport);
 
-    @Query("SELECT sa FROM SportAssessment sa " +
-            "JOIN FETCH sa.user u " +
-            "JOIN FETCH sa.sport s " +
-            "WHERE u.id = :userId")
-    List<SportAssessment> findByUserIdWithDetails(@Param("userId") Long userId);
+    @Query("SELECT new it.sportandreview.dto.response.SportAssessmentResponseDTO(sa.id, s.sportType, sa.skillLevel, sa.trainingFrequency, sa.playedCompetitively) " +
+            "FROM SportAssessment sa JOIN sa.sport s WHERE sa.user.id = :userId")
+    List<SportAssessmentResponseDTO> findSportAssessmentsByUserId(@Param("userId") Long userId);
 
+    Optional<SportAssessment> findByUserIdAndSportId(Long userId, Long sportId);
 }

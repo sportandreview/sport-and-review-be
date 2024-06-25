@@ -102,7 +102,7 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
         String message = messageSource.getMessage("validation.error", null, LocaleContextHolder.getLocale());
         log.error("handleMethodArgumentNotValid: {}", message, ex);
         ApiResponseDTO<List<ValidationErrorResponseDTO>> apiResponseDTO = ApiResponseDTO.<List<ValidationErrorResponseDTO>>builder()
-                .status(status.value())
+                .status(HttpServletResponse.SC_NOT_ACCEPTABLE)
                 .message(message)
                 .result(validationErrorDetails)
                 .build();

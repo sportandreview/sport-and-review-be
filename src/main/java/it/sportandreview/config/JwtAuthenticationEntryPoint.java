@@ -6,6 +6,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.stereotype.Component;
@@ -30,9 +31,8 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint, Se
                 .build();
 
         response.setStatus(HttpStatus.UNAUTHORIZED.value());
-        response.setContentType("application/json");
+        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setCharacterEncoding("UTF-8");
-        String jsonResponse = objectMapper.writeValueAsString(apiResponse);
-        response.getWriter().write(jsonResponse);
+        objectMapper.writeValue(response.getWriter(), apiResponse);
     }
 }
