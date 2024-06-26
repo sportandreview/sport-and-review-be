@@ -13,11 +13,10 @@ public interface UserMapper {
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "roleType", ignore = true)
-    @Mapping(target = "password", ignore = true) // Encoded separately
+    @Mapping(target = "password", ignore = true)
     @Mapping(source = "genderType", target = "genderType", qualifiedByName = "stringToGenderType")
     User toEntity(UserRequestDTO dto);
 
-    //@Mapping(target = "sports", source = "sportSet")
     UserResponseDTO toDto(User user);
 
     @Named("stringToGenderType")

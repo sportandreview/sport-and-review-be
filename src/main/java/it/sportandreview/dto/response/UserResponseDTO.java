@@ -2,6 +2,7 @@ package it.sportandreview.dto.response;
 
 import it.sportandreview.entity.SportAssessment;
 import it.sportandreview.enums.GenderType;
+import it.sportandreview.enums.PhysicalStructure;
 import it.sportandreview.enums.RoleType;
 import lombok.Builder;
 import lombok.Data;
@@ -21,6 +22,9 @@ public class UserResponseDTO {
     private String email;
     private String mobilePhone;
     private RoleType roleType;
+    private PhysicalStructure physicalStructure;
+    private Double weight;
+    private Double height;
     private boolean mobilePhoneCheck;
     private boolean emailCheck;
 }

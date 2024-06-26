@@ -81,7 +81,7 @@ public class UserController {
         return new ApiResponseDTO<>(HttpServletResponse.SC_OK, message, userMapper.toDto(updatedUser));
     }
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    //@PreAuthorize("hasRole('ROLE_ADMIN')")
     @Operation(summary = "Delete a user by Id", description = "Delete a user by their ID", tags = { "User" })
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "User deleted successfully", content = @Content),

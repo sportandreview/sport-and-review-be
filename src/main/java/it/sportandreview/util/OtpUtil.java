@@ -12,15 +12,17 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.security.SecureRandom;
 import java.time.LocalDateTime;
-import java.util.HashMap;
 import java.util.Map;
-import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 
 @RequiredArgsConstructor
 @Service
 public class OtpUtil {
+
+    private static final int OTP_LENGTH = 6;
+    private static final int OTP_EXPIRATION_MINUTES = 10;
 
     @Value("${mitto.api.key}")
     private String mittoApiKey;
@@ -39,14 +41,20 @@ public class OtpUtil {
     private final Map<String, LocalDateTime> otpExpiration = new ConcurrentHashMap<>();
 
     public String generateOtp(String key) {
-        String otp = String.valueOf(new Random().nextInt(900000) + 100000);
-        otpStorage.put(key, otp);
-        otpExpiration.put(key, LocalDateTime.now().plusMinutes(10)); // OTP valido per 10 minuti
-        return otp;
+        SecureRandom random = new SecureRandom();
+        StringBuilder otp = new StringBuilder();
+        for (int i = 0; i < OTP_LENGTH; i++) {
+            otp.append(random.nextInt(10));
+        }
+        String otpValue = otp.toString();
+        otpStorage.put(key, otpValue);
+        otpExpiration.put(key, LocalDateTime.now().plusMinutes(OTP_EXPIRATION_MINUTES));
+        return otpValue;
     }
 
     public boolean validateOtp(String key, String otp) {
-        if (otpExpiration.containsKey(key) && LocalDateTime.now().isBefore(otpExpiration.get(key))) {
+        LocalDateTime expirationTime = otpExpiration.get(key);
+        if (expirationTime != null && LocalDateTime.now().isBefore(expirationTime)) {
             return otp.equals(otpStorage.get(key));
         }
         return false;
@@ -54,12 +62,12 @@ public class OtpUtil {
 
     public void sendOtpEmail(String email, String otp) {
         String message = messageSource.getMessage("otp.email.body", new Object[]{otp}, LocaleContextHolder.getLocale());
-        SimpleMailMessage simpleMailMessage = new SimpleMailMessage();
-        simpleMailMessage.setFrom(mailFrom);
-        simpleMailMessage.setSubject("Il tuo codice OTP");
-        simpleMailMessage.setText(message);
-        simpleMailMessage.setTo(email);
-        mailSender.send(simpleMailMessage);
+        SimpleMailMessage mailMessage = new SimpleMailMessage();
+        mailMessage.setFrom(mailFrom);
+        mailMessage.setTo(email);
+        mailMessage.setSubject(messageSource.getMessage("otp.email.subject", null, LocaleContextHolder.getLocale()));
+        mailMessage.setText(message);
+        mailSender.send(mailMessage);
     }
 
     public void sendOtpSms(String phoneNumber, String otp) {
@@ -68,10 +76,11 @@ public class OtpUtil {
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.set("X-Mitto-API-Key", mittoApiKey);
 
-        Map<String, String> body = new HashMap<>();
-        body.put("from", "SportReview");
-        body.put("to", "+39" + phoneNumber);
-        body.put("text", message);
+        Map<String, String> body = Map.of(
+                "from", "SportReview",
+                "to", "+39" + phoneNumber,
+                "text", message
+        );
 
         HttpEntity<Map<String, String>> request = new HttpEntity<>(body, headers);
         restTemplate.postForObject(mittoApiUrl, request, String.class);

@@ -11,5 +11,5 @@ public interface AuthenticationService {
     AuthenticationResponseDTO authenticate(AuthenticationRequestDTO request);
     AuthenticationResponseDTO refreshToken(AuthenticationRequestDTO request);
     AuthenticationResponseDTO generateTokens(User user);
-    void updateVerificationStatus(String key, boolean b);
+    void updateVerificationStatus(String key, boolean verified);
 }

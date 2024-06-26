@@ -1,12 +1,14 @@
 package it.sportandreview.dto.response;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@ToString
 public class ApiResponseDTO<T> {
     private int status;
     private String message;

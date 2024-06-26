@@ -42,13 +42,12 @@ public class JwtTokenUtil {
     }
 
     public String generateToken(UserDetails userDetails, long validity) {
-        return doGenerateToken(userDetails.getUsername(), validity);
-    }
-
-    private String doGenerateToken(String subject, long validity) {
-        return Jwts.builder().setSubject(subject).setIssuedAt(new Date(System.currentTimeMillis()))
+        return Jwts.builder()
+                .setSubject(userDetails.getUsername())
+                .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + validity))
-                .signWith(getSignInKey(), SignatureAlgorithm.HS256).compact();
+                .signWith(getSignInKey(), SignatureAlgorithm.HS256)
+                .compact();
     }
 
     public Boolean validateToken(String token, UserDetails userDetails) {
