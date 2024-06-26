@@ -54,15 +54,12 @@ public class User implements UserDetails {
     @Column(nullable = false)
     private String password;
 
-    @Column(nullable = false)
-    private String mobilePhone;
-
-    private boolean mobilePhoneCheck;
-    private boolean emailCheck;
-
     @Enumerated(EnumType.STRING)
     private PhysicalStructure physicalStructure;
 
+    private String mobilePhone;
+    private boolean mobilePhoneCheck;
+    private boolean emailCheck;
     private Double weight;
     private Double height;
     private Integer ranking;
